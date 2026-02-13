@@ -1,0 +1,16 @@
+/**
+ * KodNest Premium Build System — Single entry point
+ * Import this file to apply the full design system.
+ *
+ * Usage:
+ *   <link rel="stylesheet" href="kn-design-system.css" />
+ *
+ * Fonts (load in HTML or app):
+ *   - Headings: Lora (Google Fonts or self-hosted)
+ *   - Body: Source Sans 3 (Google Fonts or self-hosted)
+ */
+
+@import url("tokens.css");
+@import url("base.css");
+@import url("layout.css");
+@import url("components.css");

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Notification Tracker | KodNest Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #FAFAFA; --accent-red: #8B0000; --text-main: #2D2D2D;
+            --text-muted: #666666; --card-bg: #FFFFFF; --border-color: #EAEAEA;
+            --score-green: #27ae60; --score-amber: #f39c12; --score-grey: #bdc3c7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+        nav { height: 70px; display: flex; justify-content: center; align-items: center; background: white; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; }
+        nav a { margin: 0 15px; text-decoration: none; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+        nav a.active { color: var(--accent-red); border-bottom: 2px solid var(--accent-red); }
+        .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+        .view { display: none; } .view.active { display: block; }
+        
+        /* Preferences & Dashboard UI */
+        .banner { background: #fff3f3; color: var(--accent-red); padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 500; border: 1px solid #ffcccc; }
+        .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); align-items: center; }
+        .filter-bar input, .filter-bar select { padding: 10px; border: 1px solid #DDD; border-radius: 4px; flex: 1; min-width: 140px; }
+        .job-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .job-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 24px; position: relative; transition: 0.2s; }
+        .score-badge { position: absolute; top: 20px; right: 20px; padding: 4px 10px; border-radius: 20px; color: white; font-size: 0.75rem; font-weight: 700; }
+        .settings-form { background: white; padding: 30px; border-radius: 8px; border: 1px solid var(--border-color); display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); }
+        .full-width { grid-column: span 2; }
+        .btn-primary { background: var(--accent-red); color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <nav id="top-nav" style="display: none;">
+        <a href="#dashboard" onclick="route('dashboard')">Dashboard</a>
+        <a href="#saved" onclick="route('saved')">Saved</a>
+        <a href="#digest" onclick="route('digest')">Digest</a>
+        <a href="#settings" onclick="route('settings')">Settings</a>
+        <a href="#proof" onclick="route('proof')">Proof</a>
+    </nav>
+
+    <section id="landing" class="view active">
+        <div class="container" style="text-align: center; padding-top: 100px;">
+            <h1>Stop Missing The Right Jobs.</h1>
+            <p>Precision-matched job discovery delivered daily.</p>
+            <button class="btn-primary" onclick="route('settings')" style="margin-top:20px">Start Tracking</button>
+        </div>
+    </section>
+
+    <section id="dashboard" class="view">
+        <div class="container">
+            <div id="pref-banner" class="banner" style="display:none;">Set your preferences to activate intelligent matching.</div>
+            <div class="filter-bar">
+                <input type="text" id="q-search" placeholder="Search keywords..." oninput="applyFilters()">
+                <select id="q-loc" onchange="applyFilters()"><option value="">All Locations</option></select>
+                <select id="q-sort" onchange="applyFilters()"><option value="latest">Latest</option><option value="score">Match Score</option></select>
+                <label style="font-size:0.8rem;"><input type="checkbox" id="q-match-only" onchange="applyFilters()"> Show only matches</label>
+            </div>
+            <div id="job-feed" class="job-grid"></div>
+        </div>
+    </section>
+
+    <section id="settings" class="view">
+        <div class="container">
+            <h2 style="margin-bottom:20px;">Matching Preferences</h2>
+            <form class="settings-form" onsubmit="savePreferences(event)">
+                <div class="form-group"><label>Role Keywords (e.g. SDE, React)</label><input type="text" id="p-roles"></div>
+                <div class="form-group"><label>Skills (e.g. Java, Python)</label><input type="text" id="p-skills"></div>
+                <div class="form-group"><label>Location</label><select id="p-loc" multiple><option>Bengaluru</option><option>Hyderabad</option><option>Pune</option><option>Remote</option></select></div>
+                <div class="form-group"><label>Experience</label><select id="p-exp"><option>Fresher</option><option>0-1</option><option>1-3</option><option>3-5</option></select></div>
+                <div class="form-group"><label>Work Mode</label><div><input type="checkbox" value="Remote" class="p-mode"> Remote <input type="checkbox" value="Hybrid" class="p-mode"> Hybrid</div></div>
+                <div class="form-group"><label>Min Match Score (<span id="score-val">40</span>)</label><input type="range" id="p-threshold" min="0" max="100" value="40" oninput="document.getElementById('score-val').innerText=this.value"></div>
+                <button type="submit" class="btn-primary full-width">Save & Apply Matches</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="saved" class="view"><div class="container"><h2>Saved Jobs</h2><div id="saved-feed" class="job-grid"></div></div></section>
+    <section id="digest" class="view"><div class="container"><h2>Daily Digest</h2><div class="banner">9:00 AM Curation Pipeline Active.</div></div></section>
+    <section id="proof" class="view"><div class="container"><h2>Proof</h2><div style="border:1px dashed #ccc; padding:50px;">Artifacts</div></div></section>
+
+    <script>
+        // DATASET (Same as before but normalized)
+        const companies = ["Razorpay", "Zoho", "TCS", "Infosys", "Juspay", "PhonePe", "CRED", "Swiggy"];
+        const titles = ["SDE Intern", "Graduate Engineer Trainee", "Junior Backend Developer", "Frontend Intern", "Java Developer", "React Developer"];
+        const locations = ["Bengaluru", "Hyderabad", "Pune", "Remote"];
+        
+        const rawJobs = Array.from({ length: 60 }, (_, i) => ({
+            id: i + 1,
+            title: titles[Math.floor(Math.random() * titles.length)],
+            company: companies[Math.floor(Math.random() * companies.length)],
+            location: locations[Math.floor(Math.random() * locations.length)],
+            mode: ["Remote", "Hybrid", "Onsite"][Math.floor(Math.random() * 3)],
+            experience: ["Fresher", "0-1", "1-3", "3-5"][Math.floor(Math.random() * 4)],
+            skills: ["Java", "React", "Python", "JavaScript", "SQL"].slice(0, Math.floor(Math.random() * 3) + 1),
+            source: ["LinkedIn", "Naukri", "Indeed"][Math.floor(Math.random() * 3)],
+            postedDaysAgo: Math.floor(Math.random() * 11),
+            salaryRange: "6–10 LPA",
+            applyUrl: "#",
+            description: "Exciting opportunity for a " + titles[i%titles.length] + " to join our growing team."
+        }));
+
+        // 1. PREFERENCES LOGIC
+        function savePreferences(e) {
+            e.preventDefault();
+            const prefs = {
+                roleKeywords: document.getElementById('p-roles').value.split(',').map(s => s.trim().toLowerCase()),
+                skills: document.getElementById('p-skills').value.split(',').map(s => s.trim().toLowerCase()),
+                locations: Array.from(document.getElementById('p-loc').selectedOptions).map(o => o.value),
+                modes: Array.from(document.querySelectorAll('.p-mode:checked')).map(c => c.value),
+                exp: document.getElementById('p-exp').value,
+                threshold: parseInt(document.getElementById('p-threshold').value)
+            };
+            localStorage.setItem('jobTrackerPreferences', JSON.stringify(prefs));
+            route('dashboard');
+        }
+
+        function loadPreferences() {
+            const saved = JSON.parse(localStorage.getItem('jobTrackerPreferences'));
+            if (saved) {
+                document.getElementById('p-roles').value = saved.roleKeywords.join(', ');
+                document.getElementById('p-skills').value = saved.skills.join(', ');
+                document.getElementById('p-threshold').value = saved.threshold;
+                document.getElementById('score-val').innerText = saved.threshold;
+                document.getElementById('pref-banner').style.display = 'none';
+                return saved;
+            }
+            document.getElementById('pref-banner').style.display = 'block';
+            return null;
+        }
+
+        // 2. MATCH SCORE ENGINE
+        function calculateScore(job, prefs) {
+            if (!prefs) return 0;
+            let score = 0;
+            
+            // Title & Description (+25, +15)
+            if (prefs.roleKeywords.some(kw => job.title.toLowerCase().includes(kw))) score += 25;
+            if (prefs.roleKeywords.some(kw => job.description.toLowerCase().includes(kw))) score += 15;
+            
+            // Location (+15)
+            if (prefs.locations.includes(job.location)) score += 15;
+            
+            // Mode (+10)
+            if (prefs.modes.includes(job.mode)) score += 10;
+            
+            // Experience (+10)
+            if (job.experience === prefs.exp) score += 10;
+            
+            // Skills Overlap (+15)
+            const jobSkills = job.skills.map(s => s.toLowerCase());
+            if (prefs.skills.some(sk => jobSkills.includes(sk))) score += 15;
+            
+            // Recency & Source (+5, +5)
+            if (job.postedDaysAgo <= 2) score += 5;
+            if (job.source === 'LinkedIn') score += 5;
+
+            return Math.min(score, 100);
+        }
+
+        // 3 & 4. FILTERING & RENDERING
+        function applyFilters() {
+            const prefs = loadPreferences();
+            const searchTerm = document.getElementById('q-search').value.toLowerCase();
+            const sortVal = document.getElementById('q-sort').value;
+            const matchOnly = document.getElementById('q-match-only').checked;
+
+            let processed = rawJobs.map(j => ({ ...j, matchScore: calculateScore(j, prefs) }));
+
+            // Apply Filters (AND behavior)
+            processed = processed.filter(j => {
+                const matchesSearch = j.title.toLowerCase().includes(searchTerm) || j.company.toLowerCase().includes(searchTerm);
+                const matchesThreshold = matchOnly ? (j.matchScore >= (prefs?.threshold || 0)) : true;
+                return matchesSearch && matchesThreshold;
+            });
+
+            // Sorting
+            if (sortVal === 'score') processed.sort((a, b) => b.matchScore - a.matchScore);
+            else processed.sort((a, b) => a.postedDaysAgo - b.postedDaysAgo);
+
+            renderGrid(processed, 'job-feed');
+        }
+
+        function renderGrid(data, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = data.length ? '' : '<div class="banner">No roles match your criteria. Adjust filters or lower threshold.</div>';
+            
+            data.forEach(job => {
+                const color = job.matchScore >= 80 ? 'var(--score-green)' : job.matchScore >= 60 ? 'var(--score-amber)' : 'var(--score-grey)';
+                const card = document.createElement('div');
+                card.className = 'job-card';
+                card.innerHTML = `
+                    <div class="score-badge" style="background:${color}">${job.matchScore}% Match</div>
+                    <h3>${job.title}</h3>
+                    <p style="color:var(--accent-red); font-weight:600">${job.company}</p>
+                    <p style="font-size:0.85rem; color:var(--text-muted)">${job.location} • ${job.mode} • ${job.experience} Exp</p>
+                    <p style="font-size:0.9rem; margin-top:10px">${job.salaryRange} • ${job.source}</p>
+                    <div style="margin-top:15px"><button class="btn-primary" style="padding:5px 15px; font-size:0.8rem">Apply</button></div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function route(path) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(path).classList.add('active');
+            document.getElementById('top-nav').style.display = (path === 'landing') ? 'none' : 'flex';
+            if (path === 'dashboard') applyFilters();
+        }
+
+        window.onload = () => {
+            const locSelect = document.getElementById('q-loc');
+            locations.forEach(l => locSelect.add(new Option(l, l)));
+            loadPreferences();
+        };
+    </script>
+</body>
+</html>

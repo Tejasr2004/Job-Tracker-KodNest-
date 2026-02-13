@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KodNest Premium Build</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="brand">
+            <span class="brand-name">KodNest</span>
+        </div>
+        
+        <div class="progress-indicator">
+            <span class="step-text">Step 01 / 05</span>
+        </div>
+
+        <div class="status-container">
+            <span class="badge badge-progress">In Progress</span>
+        </div>
+    </header>
+
+    <section class="context-header">
+        <h1>Define the Data Structure</h1>
+        <p class="subtext">Establish the schema before generating UI components to ensure type safety.</p>
+    </section>
+
+    <main class="workspace-grid">
+        
+        <section class="primary-panel">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Schema Definition</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="model-name">Model Name</label>
+                        <input type="text" id="model-name" placeholder="e.g. UserProfile" class="input-text">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="attributes">Attributes (JSON)</label>
+                        <textarea id="attributes" class="input-textarea" rows="6">{
+  "id": "string",
+  "email": "string",
+  "isActive": "boolean"
+}</textarea>
+                    </div>
+
+                    <div class="action-row">
+                        <button class="btn btn-secondary">Reset</button>
+                        <button class="btn btn-primary">Validate Schema</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <aside class="guide-panel">
+            <div class="guide-content">
+                <h3>Guidance</h3>
+                <p>Define your core data models here. This JSON will drive the generation of your TypeScript interfaces in the next step.</p>
+                
+                <div class="spacer-m"></div>
+
+                <div class="prompt-box">
+                    <div class="prompt-header">
+                        <span>LLM Prompt</span>
+                        <button class="btn-text">Copy</button>
+                    </div>
+                    <code class="prompt-text">Create a TypeScript interface for a User model with id, email, and active status. Ensure strict typing.</code>
+                </div>
+
+                <div class="spacer-l"></div>
+
+                <div class="button-stack">
+                    <button class="btn btn-secondary full-width">Build in Lovable</button>
+                    <button class="btn btn-secondary full-width">It Worked</button>
+                    <button class="btn btn-secondary full-width text-error">Report Error</button>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <footer class="proof-footer">
+        <div class="proof-container">
+            <label class="checkbox-container">
+                <input type="checkbox">
+                <span class="checkmark"></span>
+                <span class="label-text">UI Built</span>
+            </label>
+
+            <label class="checkbox-container">
+                <input type="checkbox">
+                <span class="checkmark"></span>
+                <span class="label-text">Logic Working</span>
+            </label>
+
+            <label class="checkbox-container">
+                <input type="checkbox">
+                <span class="checkmark"></span>
+                <span class="label-text">Test Passed</span>
+            </label>
+
+            <label class="checkbox-container">
+                <input type="checkbox">
+                <span class="checkmark"></span>
+                <span class="label-text">Deployed</span>
+            </label>
+        </div>
+        
+        <div class="next-action">
+            <button class="btn btn-primary" disabled>Next Step &rarr;</button>
+        </div>
+    </footer>
+
+</body>
+</html>

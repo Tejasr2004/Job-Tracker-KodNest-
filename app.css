@@ -1,0 +1,153 @@
+/**
+ * Job Notification Tracker — App Styles
+ * Navigation and routing-specific styles
+ */
+
+/* ——— Navigation ——— */
+.kn-nav {
+  border-bottom: var(--border);
+  background: var(--color-bg);
+  flex-shrink: 0;
+}
+
+.kn-nav__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+  position: relative;
+}
+
+.kn-nav__list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: var(--space-4);
+}
+
+.kn-nav__link {
+  display: block;
+  padding: var(--space-2) 0;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+  position: relative;
+  transition: color var(--transition);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+
+.kn-nav__link:hover {
+  color: var(--color-accent);
+}
+
+.kn-nav__link.active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+/* ——— Hamburger Menu (Mobile) ——— */
+.kn-nav__toggle {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: var(--space-1);
+  cursor: pointer;
+  position: absolute;
+  right: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.kn-nav__toggle span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--color-text);
+  transition: transform var(--transition), opacity var(--transition);
+}
+
+.kn-nav__toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.kn-nav__toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+
+.kn-nav__toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* ——— Mobile Navigation ——— */
+@media (max-width: 768px) {
+  .kn-nav__toggle {
+    display: flex;
+  }
+
+  .kn-nav__list {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--color-bg);
+    border-top: var(--border);
+    padding: var(--space-2) var(--space-4);
+    gap: 0;
+  }
+
+  .kn-nav__list.open {
+    display: flex;
+  }
+
+  .kn-nav__link {
+    padding: var(--space-2) 0;
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    padding-left: var(--space-2);
+    margin-bottom: 0;
+  }
+
+  .kn-nav__link.active {
+    border-bottom: none;
+    border-left-color: var(--color-accent);
+  }
+}
+
+/* ——— Route Container ——— */
+.kn-route-container {
+  flex: 1;
+  padding: var(--space-5) var(--space-4);
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ——— Placeholder Page ——— */
+.kn-placeholder {
+  max-width: var(--measure);
+}
+
+.kn-placeholder__heading {
+  font-family: var(--font-heading);
+  font-size: var(--text-heading-xl);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  margin: 0 0 var(--space-2);
+  color: var(--color-text);
+}
+
+.kn-placeholder__subtext {
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--color-text);
+  opacity: 0.7;
+  margin: 0;
+}

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Notification Tracker | KodNest Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #FAFAFA; /* Off-white */
+            --accent-red: #8B0000; /* Deep red */
+            --text-main: #2D2D2D;
+            --text-muted: #666666;
+            --nav-height: 70px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+        }
+
+        /* Navigation */
+        nav {
+            height: var(--nav-height);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            border-bottom: 1px solid #EEE;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav a {
+            margin: 0 20px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--accent-red);
+        }
+
+        /* Layout Containers */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* Landing Page */
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: var(--text-main);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        /* Buttons */
+        .btn {
+            background-color: var(--accent-red);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s ease, opacity 0.3s ease;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* Settings Form */
+        .settings-grid {
+            text-align: left;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        input, select {
+            padding: 12px;
+            border: 1px solid #DDD;
+            border-radius: 4px;
+            background: white;
+            font-family: inherit;
+        }
+
+        /* Empty States */
+        .empty-state {
+            padding: 100px 0;
+            opacity: 0.6;
+        }
+
+        .empty-state i {
+            display: block;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav id="top-nav" style="display: none;">
+        <a href="#dashboard" onclick="route('dashboard')">Dashboard</a>
+        <a href="#saved" onclick="route('saved')">Saved</a>
+        <a href="#digest" onclick="route('digest')">Digest</a>
+        <a href="#settings" onclick="route('settings')">Settings</a>
+        <a href="#proof" onclick="route('proof')">Proof</a>
+    </nav>
+
+    <section id="landing" class="view active">
+        <div class="container hero">
+            <h1>Stop Missing The Right Jobs.</h1>
+            <p>Precision-matched job discovery delivered daily at 9AM.</p>
+            <button class="btn" onclick="route('settings')">Start Tracking</button>
+        </div>
+    </section>
+
+    <section id="dashboard" class="view">
+        <div class="container">
+            <h2>Your Feed</h2>
+            <div class="empty-state">
+                <p>No jobs yet. In the next step, you will load a realistic dataset.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="settings" class="view">
+        <div class="container">
+            <h2>Preferences</h2>
+            <div class="settings-grid">
+                <div class="form-group">
+                    <label>Role Keywords</label>
+                    <input type="text" placeholder="e.g. Product Designer, Frontend Engineer">
+                </div>
+                <div class="form-group">
+                    <label>Preferred Locations</label>
+                    <input type="text" placeholder="e.g. New York, London, Remote">
+                </div>
+                <div class="form-group">
+                    <label>Mode</label>
+                    <select>
+                        <option>Remote</option>
+                        <option>Hybrid</option>
+                        <option>Onsite</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Experience Level</label>
+                    <select>
+                        <option>Junior</option>
+                        <option>Mid-level</option>
+                        <option>Senior/Lead</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top: 40px;">
+                <button class="btn" onclick="route('dashboard')">Save Preferences</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="saved" class="view">
+        <div class="container">
+            <h2>Saved Opportunities</h2>
+            <div class="empty-state">
+                <p>Your bookmarked jobs will appear here.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="digest" class="view">
+        <div class="container">
+            <h2>Daily Digest</h2>
+            <div class="empty-state">
+                <p>Your curated morning report is being prepared.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="proof" class="view">
+        <div class="container">
+            <h2>Proof of Concept</h2>
+            <div style="border: 1px dashed #CCC; padding: 40px; margin-top: 20px;">
+                <p style="color: #999;">Artifact collection placeholder.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function route(path) {
+            // Hide all views
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            
+            // Show target view
+            const target = document.getElementById(path);
+            if (target) target.classList.add('active');
+
+            // Toggle Nav visibility (hide only on landing)
+            const nav = document.getElementById('top-nav');
+            nav.style.display = (path === 'landing') ? 'none' : 'flex';
+
+            // Update active link styles
+            document.querySelectorAll('nav a').forEach(a => {
+                a.classList.remove('active');
+                if(a.getAttribute('href') === '#' + path) a.classList.add('active');
+            });
+
+            window.scrollTo(0, 0);
+        }
+
+        // Handle initial load
+        window.addEventListener('load', () => {
+            const hash = window.location.hash.replace('#', '');
+            if (hash) route(hash);
+        });
+    </script>
+</body>
+</html>

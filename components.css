@@ -1,0 +1,208 @@
+/**
+ * KodNest Premium Build System — Components
+ * Primary/secondary buttons, inputs, cards, badges, prompt box.
+ */
+
+@import url("tokens.css");
+
+/* ——— Buttons ——— */
+.kn-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: 500;
+  line-height: 1.4;
+  border-radius: var(--radius);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: background-color var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.kn-btn--primary {
+  background-color: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+
+.kn-btn--primary:hover {
+  background-color: #6d0000;
+  border-color: #6d0000;
+}
+
+.kn-btn--primary:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.kn-btn--secondary {
+  background-color: transparent;
+  color: var(--color-text);
+  border-color: var(--color-text);
+  opacity: 0.9;
+}
+
+.kn-btn--secondary:hover {
+  opacity: 1;
+  background-color: rgba(17, 17, 17, 0.06);
+}
+
+.kn-btn--secondary:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}
+
+/* ——— Inputs ——— */
+.kn-input,
+.kn-textarea {
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: var(--border);
+  border-radius: var(--radius);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.kn-input:focus,
+.kn-textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.kn-input::placeholder,
+.kn-textarea::placeholder {
+  color: var(--color-text);
+  opacity: 0.5;
+}
+
+.kn-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* ——— Cards ——— */
+.kn-card {
+  padding: var(--space-3);
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  /* no drop shadows per design system */
+}
+
+.kn-card__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-heading-md);
+  font-weight: 600;
+  margin: 0 0 var(--space-2);
+}
+
+/* ——— Secondary panel: step, prompt box, actions ——— */
+.kn-panel__step {
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  margin: 0 0 var(--space-2);
+  max-width: var(--measure);
+}
+
+.kn-prompt-box {
+  padding: var(--space-2);
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  line-height: var(--leading-body);
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+  position: relative;
+}
+
+.kn-prompt-box__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+/* ——— Status badge (Top bar / inline) ——— */
+.kn-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  border-radius: var(--radius);
+  border: var(--border);
+  background: var(--color-bg);
+}
+
+.kn-badge--shipped {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.kn-badge--progress {
+  border-color: var(--color-warning);
+  color: var(--color-warning);
+}
+
+/* ——— Error state ——— */
+.kn-error {
+  padding: var(--space-2);
+  border: 1px solid rgba(139, 0, 0, 0.25);
+  border-radius: var(--radius);
+  background: rgba(139, 0, 0, 0.04);
+}
+
+.kn-error__title {
+  font-weight: 600;
+  margin: 0 0 var(--space-1);
+  color: var(--color-text);
+}
+
+.kn-error__message {
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  margin: 0 0 var(--space-1);
+}
+
+.kn-error__fix {
+  font-size: var(--text-caption);
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* ——— Empty state ——— */
+.kn-empty {
+  padding: var(--space-4);
+  text-align: center;
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+}
+
+.kn-empty__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-heading-md);
+  margin: 0 0 var(--space-1);
+}
+
+.kn-empty__hint {
+  font-size: var(--text-body);
+  margin: 0 0 var(--space-2);
+  max-width: var(--measure);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.kn-empty .kn-btn {
+  margin-top: var(--space-1);
+}

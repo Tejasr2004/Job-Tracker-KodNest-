@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Notification Tracker | Daily Digest</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #FAFAFA; --accent-red: #8B0000; --text-main: #2D2D2D;
+            --text-muted: #666666; --card-bg: #FFFFFF; --border-color: #EAEAEA;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+        nav { height: 70px; display: flex; justify-content: center; align-items: center; background: white; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; }
+        nav a { margin: 0 15px; text-decoration: none; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+        nav a.active { color: var(--accent-red); font-weight: 600; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .view { display: none; } .view.active { display: block; }
+        
+        /* Digest Email-Style UI */
+        .digest-container { background: white; border: 1px solid var(--border-color); border-radius: 4px; padding: 40px; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .digest-header { border-bottom: 2px solid var(--accent-red); margin-bottom: 30px; padding-bottom: 20px; text-align: center; }
+        .digest-item { padding: 20px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+        .digest-item:last-child { border-bottom: none; }
+        .digest-footer { margin-top: 30px; font-size: 0.8rem; color: #999; text-align: center; font-style: italic; }
+        
+        .btn-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .btn { padding: 12px 24px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; border: 1px solid var(--accent-red); }
+        .btn-primary { background: var(--accent-red); color: white; }
+        .btn-outline { background: transparent; color: var(--accent-red); }
+        .sim-note { font-size: 0.7rem; color: #BBB; text-align: center; margin-top: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .badge { background: #f0f0f0; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <nav id="top-nav">
+        <a href="#dashboard" onclick="route('dashboard')">Dashboard</a>
+        <a href="#saved" onclick="route('saved')">Saved</a>
+        <a href="#digest" onclick="route('digest')" class="active">Digest</a>
+        <a href="#settings" onclick="route('settings')">Settings</a>
+    </nav>
+
+    <section id="digest" class="view active">
+        <div class="container">
+            <div id="digest-actions" class="btn-group">
+                <button class="btn btn-primary" onclick="generateDigest()">Generate Today's 9AM Digest (Simulated)</button>
+            </div>
+            
+            <div id="digest-output" style="display:none;">
+                <div class="btn-group">
+                    <button class="btn btn-outline" onclick="copyDigest()">Copy to Clipboard</button>
+                    <button class="btn btn-outline" onclick="emailDigest()">Create Email Draft</button>
+                </div>
+                <div class="digest-container" id="digest-email-body">
+                    <div class="digest-header">
+                        <h2>Top 10 Jobs For You — 9AM Digest</h2>
+                        <p id="digest-date" style="color:var(--text-muted); margin-top:5px;"></p>
+                    </div>
+                    <div id="digest-list"></div>
+                    <div class="digest-footer">This digest was generated based on your preferences.</div>
+                </div>
+                <p class="sim-note">Demo Mode: Daily 9AM trigger simulated manually.</p>
+            </div>
+
+            <div id="digest-msg" class="container" style="text-align:center; padding-top:100px;">
+                <h3 id="msg-text">Set preferences to generate a personalized digest.</h3>
+            </div>
+        </div>
+    </section>
+
+    <section id="dashboard" class="view"><div class="container"><h2>Dashboard</h2><p>Return to Digest to view curation.</p></div></section>
+    <section id="settings" class="view"><div class="container"><h2>Settings</h2><p>Configure role keywords and skills here.</p></div></section>
+    <section id="saved" class="view"><div class="container"><h2>Saved</h2></div></section>
+
+    <script>
+        // Use the scoring engine logic from previous architecture
+        function getPrefs() { return JSON.parse(localStorage.getItem('jobTrackerPreferences')); }
+
+        function generateDigest() {
+            const prefs = getPrefs();
+            if (!prefs) { alert("Please set your preferences in Settings first."); return; }
+
+            const today = new Date().toISOString().split('T')[0];
+            const storageKey = `jobTrackerDigest_${today}`;
+            
+            // Check persistence
+            let digest = JSON.parse(localStorage.getItem(storageKey));
+            
+            if (!digest) {
+                // Logic: Select top 10 by matchScore desc, then postedDaysAgo asc
+                // Note: Assuming 'rawJobs' and 'calculateScore' are available from global scope as per HLD
+                const scoredJobs = rawJobs.map(j => ({ ...j, score: calculateScore(j, prefs) }));
+                digest = scoredJobs
+                    .filter(j => j.score >= (prefs.threshold || 0))
+                    .sort((a, b) => b.score - a.score || a.postedDaysAgo - b.postedDaysAgo)
+                    .slice(0, 10);
+                
+                if (digest.length === 0) {
+                    document.getElementById('digest-msg').innerHTML = "<h3>No matching roles today. Check again tomorrow.</h3>";
+                    return;
+                }
+                localStorage.setItem(storageKey, JSON.stringify(digest));
+            }
+            renderDigestUI(digest, today);
+        }
+
+        function renderDigestUI(digest, date) {
+            document.getElementById('digest-msg').style.display = 'none';
+            document.getElementById('digest-output').style.display = 'block';
+            document.getElementById('digest-date').innerText = new Date(date).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            const list = document.getElementById('digest-list');
+            list.innerHTML = '';
+            digest.forEach(job => {
+                const item = document.createElement('div');
+                item.className = 'digest-item';
+                item.innerHTML = `
+                    <div>
+                        <h4 style="margin-bottom:4px;">${job.title}</h4>
+                        <p style="font-size:0.85rem; color:var(--accent-red); font-weight:600;">${job.company}</p>
+                        <p style="font-size:0.8rem; color:#666;">${job.location} • ${job.experience} Exp</p>
+                    </div>
+                    <div style="text-align:right;">
+                        <span class="badge">${job.score}% Match</span><br>
+                        <button class="btn btn-primary" style="padding:5px 15px; font-size:0.75rem; margin-top:8px;">Apply</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function copyDigest() {
+            const today = new Date().toISOString().split('T')[0];
+            const digest = JSON.parse(localStorage.getItem(`jobTrackerDigest_${today}`));
+            const text = digest.map((j, i) => `${i+1}. ${j.title} @ ${j.company} (${j.score}% Match)`).join('\n');
+            navigator.clipboard.writeText(`My 9AM Job Digest - ${today}\n\n${text}`);
+            alert("Digest copied to clipboard!");
+        }
+
+        function emailDigest() {
+            const today = new Date().toISOString().split('T')[0];
+            const subject = encodeURIComponent("My 9AM Job Digest");
+            const body = encodeURIComponent("Check out today's top curated matches from my Tracker...");
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        function route(path) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(path).classList.add('active');
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (path === 'digest') {
+                const today = new Date().toISOString().split('T')[0];
+                const existing = localStorage.getItem(`jobTrackerDigest_${today}`);
+                if (existing) renderDigestUI(JSON.parse(existing), today);
+            }
+        }
+
+        // Re-use core components from previous turns
+        const rawJobs = Array.from({ length: 60 }, (_, i) => ({
+            id: i + 1,
+            title: ["SDE Intern", "Graduate Engineer", "Frontend Developer"][i % 3],
+            company: ["Razorpay", "Zoho", "TCS"][i % 3],
+            location: "Bengaluru",
+            experience: "Fresher",
+            postedDaysAgo: Math.floor(Math.random() * 5),
+            score: 0 // Will be calculated
+        }));
+
+        function calculateScore(j, p) { return Math.floor(Math.random() * 40) + 60; } // Placeholder score logic for simulation
+    </script>
+</body>
+</html>

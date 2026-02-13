@@ -1,0 +1,47 @@
+/**
+ * KodNest Premium Build System — Design Tokens
+ * Do not introduce new values. Use only these tokens.
+ */
+
+:root {
+  /* ——— Color (max 4 in use) ——— */
+  --color-bg: #F7F6F3;
+  --color-text: #111111;
+  --color-accent: #8B0000;
+  --color-success: #4A5D4A;
+  --color-warning: #8B7355;
+
+  /* ——— Typography ——— */
+  --font-heading: "Lora", "Georgia", serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+
+  --text-heading-xl: 2.25rem;   /* 36px */
+  --text-heading-lg: 1.75rem;   /* 28px */
+  --text-heading-md: 1.375rem;  /* 22px */
+  --text-body: 1rem;            /* 16px */
+  --text-body-lg: 1.125rem;     /* 18px */
+  --text-caption: 0.875rem;     /* 14px */
+
+  --leading-tight: 1.35;
+  --leading-body: 1.6;
+  --leading-relaxed: 1.8;
+
+  --measure: 45rem;             /* 720px max for text blocks */
+
+  /* ——— Spacing (only these five) ——— */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 40px;
+  --space-5: 64px;
+
+  /* ——— Borders & radius ——— */
+  --radius: 6px;
+  --border: 1px solid rgba(17, 17, 17, 0.12);
+  --border-focus: 2px solid var(--color-accent);
+
+  /* ——— Transitions ——— */
+  --ease: ease-in-out;
+  --duration: 180ms;
+  --transition: var(--duration) var(--ease);
+}

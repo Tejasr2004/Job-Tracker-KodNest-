@@ -1,0 +1,87 @@
+/**
+ * KodNest Premium Build System — Base
+ * Typography and base element styles. Depends on tokens.css.
+ */
+
+@import url("tokens.css");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+/* Headings — serif, confident, generous spacing */
+h1, .kn-heading-xl {
+  font-family: var(--font-heading);
+  font-size: var(--text-heading-xl);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--space-2);
+}
+
+h2, .kn-heading-lg {
+  font-family: var(--font-heading);
+  font-size: var(--text-heading-lg);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  margin: 0 0 var(--space-2);
+}
+
+h3, .kn-heading-md {
+  font-family: var(--font-heading);
+  font-size: var(--text-heading-md);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  margin: 0 0 var(--space-1);
+}
+
+p, .kn-body {
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  margin: 0 0 var(--space-2);
+  max-width: var(--measure);
+}
+
+.kn-body-lg {
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-relaxed);
+  max-width: var(--measure);
+}
+
+.kn-caption {
+  font-size: var(--text-caption);
+  line-height: var(--leading-body);
+  color: var(--color-text);
+  opacity: 0.85;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: opacity var(--transition);
+}
+
+a:hover {
+  opacity: 0.85;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

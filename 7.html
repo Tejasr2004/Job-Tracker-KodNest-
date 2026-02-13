@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Tracker | QA & Testing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #FAFAFA; --accent-red: #8B0000; --text-main: #2D2D2D;
+            --text-muted: #666666; --card-bg: #FFFFFF; --border-color: #EAEAEA;
+            --success: #2e7d32; --warning: #ed6c02;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+        
+        nav { height: 70px; display: flex; justify-content: center; align-items: center; background: white; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; }
+        nav a { margin: 0 15px; text-decoration: none; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        nav a.active { color: var(--accent-red); font-weight: 600; }
+        nav a.locked { opacity: 0.4; cursor: not-allowed; }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .view { display: none; } .view.active { display: block; }
+
+        /* Checklist UI */
+        .test-card { background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .test-summary { margin-bottom: 30px; padding: 20px; border-radius: 6px; text-align: center; }
+        .status-pass { background: #e8f5e9; color: var(--success); border: 1px solid #c8e6c9; }
+        .status-warn { background: #fff3e0; color: var(--warning); border: 1px solid #ffe0b2; }
+        
+        .checklist-item { display: flex; align-items: flex-start; padding: 15px 0; border-bottom: 1px solid #f5f5f5; gap: 15px; }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-item input[type="checkbox"] { transform: scale(1.3); margin-top: 5px; cursor: pointer; }
+        .checklist-item label { cursor: pointer; flex-grow: 1; }
+        .checklist-item .how-to { font-size: 0.75rem; color: #999; display: block; margin-top: 4px; font-style: italic; }
+
+        .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+        .btn { padding: 12px 24px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; border: 1px solid var(--accent-red); }
+        .btn-primary { background: var(--accent-red); color: white; }
+        .btn-outline { background: transparent; color: var(--accent-red); font-size: 0.7rem; text-transform: uppercase; }
+
+        .digest-container { background: white; border: 1px solid var(--border-color); padding: 40px; }
+        .digest-item { padding: 15px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+
+    <nav id="top-nav">
+        <a href="#dashboard" onclick="route('dashboard')">Dashboard</a>
+        <a href="#digest" onclick="route('digest')">Digest</a>
+        <a href="#jt/07-test" onclick="route('jt/07-test')" class="active">QA Checklist</a>
+        <a href="#jt/08-ship" id="ship-link" onclick="route('jt/08-ship')" class="locked">Ship</a>
+    </nav>
+
+    <section id="jt/07-test" class="view active">
+        <div class="container">
+            <div class="test-card">
+                <div id="test-summary-box" class="test-summary status-warn">
+                    <h2 id="test-count">Tests Passed: 0 / 10</h2>
+                    <p id="test-msg" style="font-size: 0.9rem; margin-top: 5px;">Resolve all issues before shipping.</p>
+                </div>
+
+                <div id="checklist-container">
+                    </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-outline" onclick="resetTests()">Reset Test Status</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="jt/08-ship" class="view">
+        <div class="container" style="text-align: center;">
+            <div class="test-card" style="border-top: 4px solid var(--success);">
+                <h1 style="font-size: 3rem; margin-bottom: 10px;">Ready for Launch</h1>
+                <p>All quality gates passed. System is stable for production.</p>
+                <button class="btn btn-primary" style="margin-top: 20px;" onclick="alert('Deploying to Production...')">Finalize Deployment</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="dashboard" class="view"><div class="container"><h2>Dashboard</h2><p>Overview of active applications.</p></div></section>
+    <section id="digest" class="view"><div class="container"><h2>Daily Digest</h2><p>Your 9AM curated matches.</p></div></section>
+
+    <script>
+        const TEST_ITEMS = [
+            { id: 'pref_persist', label: 'Preferences persist after refresh', hint: 'Change keywords, refresh page, and verify values remain.' },
+            { id: 'score_calc', label: 'Match score calculates correctly', hint: 'Verify score changes when skills are updated.' },
+            { id: 'toggle_match', label: '"Show only matches" toggle works', hint: 'Toggle on/off and ensure low-score jobs disappear/reappear.' },
+            { id: 'save_persist', label: 'Save job persists after refresh', hint: 'Save a job, refresh, and check the Saved tab.' },
+            { id: 'apply_tab', label: 'Apply opens in new tab', hint: 'Click Apply and ensure it doesn\'t navigate away from app.' },
+            { id: 'status_persist', label: 'Status update persists after refresh', hint: 'Change "Applied" to "Interviewing", refresh, and check.' },
+            { id: 'status_filter', label: 'Status filter works correctly', hint: 'Filter by "Interviewing" in the Dashboard.' },
+            { id: 'digest_top10', label: 'Digest generates top 10 by score', hint: 'Check that 9AM digest only includes the highest matches.' },
+            { id: 'digest_daily', label: 'Digest persists for the day', hint: 'Generate digest, refresh, and ensure it doesn\'t re-randomize.' },
+            { id: 'console_clean', label: 'No console errors on main pages', hint: 'Open DevTools (F12) and check for red error text.' }
+        ];
+
+        function initChecklist() {
+            const container = document.getElementById('checklist-container');
+            const savedState = JSON.parse(localStorage.getItem('jt_test_results') || '{}');
+            
+            container.innerHTML = TEST_ITEMS.map(item => `
+                <div class="checklist-item">
+                    <input type="checkbox" id="${item.id}" ${savedState[item.id] ? 'checked' : ''} onchange="updateTest('${item.id}')">
+                    <label for="${item.id}">
+                        <strong>${item.label}</strong>
+                        <span class="how-to">How to test: ${item.hint}</span>
+                    </label>
+                </div>
+            `).join('');
+            
+            checkShipLock();
+        }
+
+        function updateTest(id) {
+            const savedState = JSON.parse(localStorage.getItem('jt_test_results') || '{}');
+            savedState[id] = document.getElementById(id).checked;
+            localStorage.setItem('jt_test_results', JSON.stringify(savedState));
+            checkShipLock();
+        }
+
+        function checkShipLock() {
+            const savedState = JSON.parse(localStorage.getItem('jt_test_results') || '{}');
+            const passedCount = Object.values(savedState).filter(Boolean).length;
+            const total = TEST_ITEMS.length;
+
+            // Update Summary UI
+            const summaryBox = document.getElementById('test-summary-box');
+            const countText = document.getElementById('test-count');
+            const msgText = document.getElementById('test-msg');
+            const shipLink = document.getElementById('ship-link');
+
+            countText.innerText = `Tests Passed: ${passedCount} / ${total}`;
+            
+            if (passedCount === total) {
+                summaryBox.className = 'test-summary status-pass';
+                msgText.innerText = "System verified. Ready for ship.";
+                shipLink.classList.remove('locked');
+            } else {
+                summaryBox.className = 'test-summary status-warn';
+                msgText.innerText = "Resolve all issues before shipping.";
+                shipLink.classList.add('locked');
+            }
+        }
+
+        function resetTests() {
+            if(confirm("Reset all test progress?")) {
+                localStorage.removeItem('jt_test_results');
+                initChecklist();
+            }
+        }
+
+        function route(path) {
+            if (path === 'jt/08-ship') {
+                const savedState = JSON.parse(localStorage.getItem('jt_test_results') || '{}');
+                const passedCount = Object.values(savedState).filter(Boolean).length;
+                if (passedCount < TEST_ITEMS.length) {
+                    alert("Access Denied: You must pass all 10 tests before shipping.");
+                    return;
+                }
+            }
+
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(path).classList.add('active');
+            
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            const activeLink = Array.from(document.querySelectorAll('nav a')).find(a => a.getAttribute('onclick').includes(path));
+            if (activeLink) activeLink.classList.add('active');
+        }
+
+        // Initialize on load
+        window.onload = initChecklist;
+    </script>
+</body>
+</html>

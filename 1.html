@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Notification Tracker</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Design System -->
+  <link rel="stylesheet" href="kn-design-system.css">
+  
+  <!-- App Styles -->
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div class="kn-page">
+    <!-- Navigation -->
+    <nav class="kn-nav" role="navigation">
+      <div class="kn-nav__container">
+        <button class="kn-nav__toggle" aria-label="Toggle menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <ul class="kn-nav__list">
+          <li><a href="#/" class="kn-nav__link" data-route="/">Dashboard</a></li>
+          <li><a href="#/saved" class="kn-nav__link" data-route="/saved">Saved</a></li>
+          <li><a href="#/digest" class="kn-nav__link" data-route="/digest">Digest</a></li>
+          <li><a href="#/settings" class="kn-nav__link" data-route="/settings">Settings</a></li>
+          <li><a href="#/proof" class="kn-nav__link" data-route="/proof">Proof</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Route Content -->
+    <main class="kn-route-container" id="route-container">
+      <!-- Content will be rendered here by router -->
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

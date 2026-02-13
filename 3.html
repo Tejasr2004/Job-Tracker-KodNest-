@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Notification Tracker | KodNest Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #FAFAFA;
+            --accent-red: #8B0000;
+            --text-main: #2D2D2D;
+            --text-muted: #666666;
+            --card-bg: #FFFFFF;
+            --border-color: #EAEAEA;
+            --nav-height: 70px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+        /* Navigation */
+        nav { height: var(--nav-height); display: flex; justify-content: center; align-items: center; background: white; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; }
+        nav a { margin: 0 15px; text-decoration: none; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        nav a:hover, nav a.active { color: var(--accent-red); }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* Filter Bar */
+        .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .filter-bar select, .filter-bar input { padding: 10px; border: 1px solid #DDD; border-radius: 4px; font-family: inherit; font-size: 0.9rem; flex: 1; min-width: 150px; }
+
+        /* Job Cards */
+        .job-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .job-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 24px; text-align: left; transition: transform 0.2s; position: relative; }
+        .job-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        
+        .job-card .source-badge { position: absolute; top: 20px; right: 20px; font-size: 0.7rem; background: #F0F0F0; padding: 2px 8px; border-radius: 10px; color: var(--text-muted); }
+        .job-card h3 { margin-bottom: 5px; font-size: 1.2rem; color: var(--text-main); }
+        .job-card .company { color: var(--accent-red); font-weight: 600; font-size: 0.9rem; margin-bottom: 15px; }
+        .job-card .meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
+        .job-card .salary { font-weight: 600; color: #2D2D2D; margin-top: 10px; font-size: 0.9rem; }
+        
+        .card-actions { margin-top: 20px; display: flex; gap: 10px; }
+        .btn-small { padding: 8px 16px; border-radius: 4px; border: 1px solid var(--accent-red); cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s; background: transparent; color: var(--accent-red); }
+        .btn-primary { background: var(--accent-red); color: white; border: none; }
+        .btn-primary:hover { opacity: 0.9; }
+
+        /* Modal */
+        #modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .modal { background: white; padding: 40px; border-radius: 8px; max-width: 600px; width: 90%; position: relative; }
+        .close-modal { position: absolute; top: 20px; right: 20px; cursor: pointer; font-size: 1.5rem; }
+
+        .empty-state { text-align: center; padding: 100px 0; opacity: 0.5; font-family: 'Playfair Display', serif; font-size: 1.5rem; }
+    </style>
+</head>
+<body>
+
+    <nav id="top-nav" style="display: none;">
+        <a href="#dashboard" onclick="route('dashboard')">Dashboard</a>
+        <a href="#saved" onclick="route('saved')">Saved</a>
+        <a href="#digest" onclick="route('digest')">Digest</a>
+        <a href="#settings" onclick="route('settings')">Settings</a>
+        <a href="#proof" onclick="route('proof')">Proof</a>
+    </nav>
+
+    <section id="landing" class="view active">
+        <div class="container" style="text-align: center; padding-top: 100px;">
+            <h1 style="font-size: 3.5rem; margin-bottom: 20px;">Stop Missing The Right Jobs.</h1>
+            <p style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 40px;">Precision-matched job discovery delivered daily at 9AM.</p>
+            <button class="btn-primary btn-small" style="padding: 15px 40px; font-size: 1rem;" onclick="route('settings')">Start Tracking</button>
+        </div>
+    </section>
+
+    <section id="dashboard" class="view">
+        <div class="container">
+            <h2 style="margin-bottom: 30px;">Available Opportunities</h2>
+            <div class="filter-bar">
+                <input type="text" id="search" placeholder="Search keywords or company...">
+                <select id="f-location"><option value="">Location</option><option>Bengaluru</option><option>Hyderabad</option><option>Pune</option><option>Remote</option></select>
+                <select id="f-mode"><option value="">Mode</option><option>Remote</option><option>Hybrid</option><option>Onsite</option></select>
+                <select id="f-exp"><option value="">Experience</option><option>Fresher</option><option>0-1 Years</option><option>1-3 Years</option></select>
+                <select id="f-source"><option value="">Source</option><option>LinkedIn</option><option>Naukri</option><option>Indeed</option></select>
+            </div>
+            <div id="job-feed" class="job-grid"></div>
+        </div>
+    </section>
+
+    <section id="saved" class="view">
+        <div class="container">
+            <h2 style="margin-bottom: 30px;">Saved for Later</h2>
+            <div id="saved-feed" class="job-grid"></div>
+        </div>
+    </section>
+
+    <section id="settings" class="view"><div class="container"><h2>Settings</h2><p>Preference fields here...</p></div></section>
+    <section id="digest" class="view"><div class="container"><div class="empty-state">Your morning digest arrives at 9:00 AM.</div></div></section>
+    <section id="proof" class="view"><div class="container"><h2>Proof of Concept</h2><div style="border: 2px dashed #DDD; padding: 50px; color: #AAA;">Artifact Repository</div></div></section>
+
+    <div id="modal-overlay">
+        <div class="modal" id="job-modal">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Dataset Generation (60 Realistic Indian Tech Jobs)
+        const companies = ["Razorpay", "Zoho", "TCS", "Infosys", "Juspay", "PhonePe", "CRED", "Swiggy", "Accenture", "Freshworks", "Oracle", "Paytm"];
+        const titles = ["SDE Intern", "Graduate Engineer Trainee", "Junior Backend Developer", "Frontend Intern", "QA Analyst", "Data Analyst Intern", "Java Developer", "Python Developer", "React Developer"];
+        const locs = ["Bengaluru", "Hyderabad", "Pune", "Chennai", "Remote"];
+        const modes = ["Remote", "Hybrid", "Onsite"];
+        const exps = ["Fresher", "0-1", "1-3", "3-5"];
+        const sources = ["LinkedIn", "Naukri", "Indeed"];
+        const salaries = ["₹15k–₹40k/month", "3–5 LPA", "6–10 LPA", "12–18 LPA"];
+
+        const jobs = Array.from({ length: 60 }, (_, i) => ({
+            id: i + 1,
+            title: titles[Math.floor(Math.random() * titles.length)],
+            company: companies[Math.floor(Math.random() * companies.length)],
+            location: locs[Math.floor(Math.random() * locs.length)],
+            mode: modes[Math.floor(Math.random() * modes.length)],
+            experience: exps[Math.floor(Math.random() * exps.length)],
+            skills: ["JavaScript", "Problem Solving", "Teamwork"],
+            source: sources[Math.floor(Math.random() * sources.length)],
+            postedDaysAgo: Math.floor(Math.random() * 11),
+            salaryRange: salaries[Math.floor(Math.random() * salaries.length)],
+            applyUrl: "https://example.com/apply",
+            description: "Join our fast-paced engineering team to build scalable solutions. You will work closely with senior mentors to deploy high-impact features using modern tech stacks. Ideal for proactive learners looking to grow in the Indian fintech/SaaS ecosystem."
+        }));
+
+        // 2. Routing Logic
+        function route(path) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(path).classList.add('active');
+            document.getElementById('top-nav').style.display = (path === 'landing') ? 'none' : 'flex';
+            if(path === 'dashboard') renderJobs(jobs, 'job-feed');
+            if(path === 'saved') renderSaved();
+        }
+
+        // 3. Rendering Logic
+        function renderJobs(data, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = data.length ? '' : '<div class="empty-state">No jobs found matching your criteria.</div>';
+            
+            data.forEach(job => {
+                const card = document.createElement('div');
+                card.className = 'job-card';
+                card.innerHTML = `
+                    <span class="source-badge">${job.source}</span>
+                    <h3>${job.title}</h3>
+                    <p class="company">${job.company}</p>
+                    <div class="meta">📍 ${job.location} • ${job.mode}</div>
+                    <div class="meta">💼 ${job.experience} Years Exp</div>
+                    <div class="salary">${job.salaryRange}</div>
+                    <div class="meta" style="margin-top:10px">${job.postedDaysAgo === 0 ? 'Posted today' : job.postedDaysAgo + ' days ago'}</div>
+                    <div class="card-actions">
+                        <button class="btn-small" onclick="viewJob(${job.id})">View</button>
+                        <button class="btn-small" onclick="saveJob(${job.id})">Save</button>
+                        <button class="btn-small btn-primary" onclick="window.open('${job.applyUrl}', '_blank')">Apply Now</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 4. Persistence (Local Storage)
+        function saveJob(id) {
+            let saved = JSON.parse(localStorage.getItem('savedJobs') || '[]');
+            if (!saved.includes(id)) {
+                saved.push(id);
+                localStorage.setItem('savedJobs', JSON.stringify(saved));
+                alert('Job saved to your profile.');
+            }
+        }
+
+        function renderSaved() {
+            const savedIds = JSON.parse(localStorage.getItem('savedJobs') || '[]');
+            const savedData = jobs.filter(j => savedIds.includes(j.id));
+            renderJobs(savedData, 'saved-feed');
+        }
+
+        // 5. Modal & Details
+        function viewJob(id) {
+            const job = jobs.find(j => j.id === id);
+            const content = document.getElementById('modal-content');
+            content.innerHTML = `
+                <h2 style="margin-bottom:10px">${job.title}</h2>
+                <h4 style="color:var(--accent-red); margin-bottom:20px">${job.company}</h4>
+                <p><strong>Required Skills:</strong> ${job.skills.join(', ')}</p>
+                <p style="margin-top:20px">${job.description}</p>
+            `;
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+    </script>
+</body>
+</html>

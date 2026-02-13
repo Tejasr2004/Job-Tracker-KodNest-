@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Tracker | Final Submission</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #FAFAFA; --accent-red: #8B0000; --text-main: #2D2D2D;
+            --text-muted: #666666; --card-bg: #FFFFFF; --border-color: #EAEAEA;
+            --success: #2e7d32; --status-bg: #F0F0F0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+        
+        nav { height: 70px; display: flex; justify-content: center; align-items: center; background: white; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 1000; }
+        nav a { margin: 0 15px; text-decoration: none; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        nav a.active { color: var(--accent-red); font-weight: 600; }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .view { display: none; } .view.active { display: block; }
+
+        /* Proof Page UI */
+        .proof-card { background: white; border: 1px solid var(--border-color); padding: 40px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; background: var(--status-bg); color: var(--text-muted); margin-bottom: 20px; }
+        .status-shipped { background: #e8f5e9; color: var(--success); }
+        
+        .step-list { margin: 25px 0; border-top: 1px solid #F5F5F5; }
+        .step-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F5F5F5; font-size: 0.9rem; }
+        .step-row span.done { color: var(--success); font-weight: 600; }
+        .step-row span.pending { color: #BBB; }
+
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; color: var(--text-muted); }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 4px; font-family: inherit; font-size: 0.9rem; transition: 0.2s; }
+        .input-group input:focus { outline: none; border-color: var(--accent-red); }
+
+        .btn { padding: 14px 28px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: 0.2s; border: 1px solid var(--accent-red); width: 100%; margin-top: 10px; }
+        .btn-primary { background: var(--accent-red); color: white; }
+        .btn-disabled { background: #EEE; border-color: #DDD; color: #AAA; cursor: not-allowed; }
+        
+        .confirmation-msg { margin-top: 20px; color: var(--success); font-size: 0.85rem; text-align: center; font-weight: 500; }
+    </style>
+</head>
+<body>
+
+    <nav id="top-nav">
+        <a href="#jt/07-test" onclick="route('jt/07-test')">QA Checklist</a>
+        <a href="#jt/proof" onclick="route('jt/proof')" class="active">Final Proof</a>
+    </nav>
+
+    <section id="jt/proof" class="view active">
+        <div class="container">
+            <div class="proof-card">
+                <div id="ship-status" class="status-badge">Not Started</div>
+                <h2>Project 1 — Job Notification Tracker</h2>
+                
+                <div class="step-list">
+                    <div class="step-row"><span>01. Core Architecture</span><span class="done">Completed</span></div>
+                    <div class="step-row"><span>02. Scoring Engine</span><span class="done">Completed</span></div>
+                    <div class="step-row"><span>03. UI/UX Layout</span><span class="done">Completed</span></div>
+                    <div class="step-row"><span>04. Persistence Logic</span><span class="done">Completed</span></div>
+                    <div class="step-row"><span>05. Status Tracking</span><span class="done">Completed</span></div>
+                    <div class="step-row"><span>06. 9AM Daily Digest</span><span class="done">Completed</span></div>
+                    <div class="step-row"><span>07. QA Test Checklist</span><span id="qa-status">Pending</span></div>
+                    <div class="step-row"><span>08. Live Deployment</span><span id="deploy-status">Pending</span></div>
+                </div>
+
+                <div class="input-group">
+                    <label>Lovable Project Link</label>
+                    <input type="url" id="link-lovable" placeholder="https://lovable.dev/projects/..." oninput="validateProof()">
+                </div>
+                <div class="input-group">
+                    <label>GitHub Repository Link</label>
+                    <input type="url" id="link-github" placeholder="https://github.com/user/repo" oninput="validateProof()">
+                </div>
+                <div class="input-group">
+                    <label>Deployed URL (Vercel/Netlify)</label>
+                    <input type="url" id="link-live" placeholder="https://project.vercel.app" oninput="validateProof()">
+                </div>
+
+                <button id="submit-btn" class="btn btn-disabled" onclick="copySubmission()" disabled>Copy Final Submission</button>
+                <div id="ship-msg" class="confirmation-msg" style="display:none;">Project 1 Shipped Successfully.</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="jt/07-test" class="view"><div class="container"><h2>QA Checklist</h2><p>Return to Proof once tests pass.</p></div></section>
+
+    <script>
+        const REQUIRED_LINKS = ['link-lovable', 'link-github', 'link-live'];
+
+        function validateProof() {
+            const savedTests = JSON.parse(localStorage.getItem('jt_test_results') || '{}');
+            const testsPassed = Object.values(savedTests).filter(Boolean).length === 10;
+            
+            // Update QA status text
+            document.getElementById('qa-status').innerText = testsPassed ? 'Completed' : 'Pending';
+            document.getElementById('qa-status').className = testsPassed ? 'done' : 'pending';
+
+            // Check Links
+            let linksValid = true;
+            const linkData = {};
+            
+            REQUIRED_LINKS.forEach(id => {
+                const val = document.getElementById(id).value;
+                linkData[id] = val;
+                if (!val.startsWith('http') || val.length < 10) linksValid = false;
+            });
+
+            // Save links to localStorage
+            localStorage.setItem('jt_proof_links', JSON.stringify(linkData));
+
+            // Update Deployment status text
+            document.getElementById('deploy-status').innerText = linksValid ? 'Completed' : 'Pending';
+            document.getElementById('deploy-status').className = linksValid ? 'done' : 'pending';
+
+            // Final Validation
+            const btn = document.getElementById('submit-btn');
+            const badge = document.getElementById('ship-status');
+            const msg = document.getElementById('ship-msg');
+
+            if (testsPassed && linksValid) {
+                btn.className = 'btn btn-primary';
+                btn.disabled = false;
+                badge.innerText = 'Shipped';
+                badge.className = 'status-badge status-shipped';
+                msg.style.display = 'block';
+            } else {
+                btn.className = 'btn btn-disabled';
+                btn.disabled = true;
+                badge.innerText = linksValid || testsPassed ? 'In Progress' : 'Not Started';
+                badge.className = 'status-badge';
+                msg.style.display = 'none';
+            }
+        }
+
+        function copySubmission() {
+            const links = JSON.parse(localStorage.getItem('jt_proof_links'));
+            const text = `------------------------------------------
+Job Notification Tracker — Final Submission
+
+Lovable Project:
+${links['link-lovable']}
+
+GitHub Repository:
+${links['link-github']}
+
+Live Deployment:
+${links['link-live']}
+
+Core Features:
+- Intelligent match scoring
+- Daily digest simulation
+- Status tracking
+- Test checklist enforced
+------------------------------------------`;
+            
+            navigator.clipboard.writeText(text);
+            alert("Submission formatted and copied to clipboard.");
+        }
+
+        function route(path) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(path).classList.add('active');
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            event.target.classList.add('active');
+            if(path === 'jt/proof') validateProof();
+        }
+
+        // Load saved links on startup
+        window.onload = () => {
+            const savedLinks = JSON.parse(localStorage.getItem('jt_proof_links') || '{}');
+            Object.keys(savedLinks).forEach(id => {
+                if(document.getElementById(id)) document.getElementById(id).value = savedLinks[id];
+            });
+            validateProof();
+        };
+    </script>
+</body>
+</html>
