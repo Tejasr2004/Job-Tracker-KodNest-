@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KodNest Premium Build System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* COLOR SYSTEM */
+            --bg-color: #F7F6F3;
+            --text-primary: #111111;
+            --accent: #8B0000;
+            --success: #4A6741; /* Muted Green */
+            --warning: #B38600; /* Muted Amber */
+            --border: #E5E4E1;
+            --card-bg: #FFFFFF;
+            
+            /* SPACING SYSTEM */
+            --space-8: 8px;
+            --space-16: 16px;
+            --space-24: 24px;
+            --space-40: 40px;
+            --space-64: 64px;
+
+            /* TRANSITIONS */
+            --transition: 200ms ease-in-out;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        /* GLOBAL LAYOUT STRUCTURE */
+        
+        /* 1. TOP BAR */
+        .top-bar {
+            height: 64px;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 var(--space-40);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .project-name {
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .progress-indicator {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .status-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 12px;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        /* 2. CONTEXT HEADER */
+        .context-header {
+            max-width: 1200px;
+            margin: var(--space-64) auto var(--space-40);
+            padding: 0 var(--space-40);
+        }
+
+        .context-header h1 {
+            font-size: 40px;
+            margin-bottom: var(--space-8);
+        }
+
+        .context-header p {
+            color: var(--text-primary);
+            opacity: 0.7;
+            font-size: 18px;
+            max-width: 720px;
+        }
+
+        /* 3. PRIMARY WORKSPACE + SECONDARY PANEL */
+        .main-layout {
+            max-width: 1200px;
+            margin: 0 auto var(--space-64);
+            padding: 0 var(--space-40);
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: var(--space-40);
+            padding-bottom: 120px; /* Space for footer */
+        }
+
+        /* WORKSPACE COMPONENTS */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: var(--space-40);
+            border-radius: 4px;
+            margin-bottom: var(--space-24);
+        }
+
+        /* SECONDARY PANEL */
+        .panel-section {
+            margin-bottom: var(--space-40);
+        }
+
+        .panel-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-16);
+            display: block;
+        }
+
+        .prompt-box {
+            background: #F0EFEA;
+            border: 1px solid var(--border);
+            padding: var(--space-16);
+            font-family: monospace;
+            font-size: 13px;
+            border-radius: 4px;
+            margin-bottom: var(--space-16);
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin-bottom: var(--space-8);
+            border: 1px solid transparent;
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #FFFFFF;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border-color: var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-color);
+        }
+
+        /* 4. PROOF FOOTER */
+        .proof-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            padding: var(--space-24) var(--space-40);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--space-40);
+            z-index: 100;
+        }
+
+        .proof-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-8);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .proof-item input[type="checkbox"] {
+            accent-color: var(--accent);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* FORM INPUTS */
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            transition: var(--transition);
+            background: var(--bg-color);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--card-bg);
+        }
+
+        /* ERROR STATE */
+        .error-container {
+            border-left: 4px solid var(--accent);
+            padding: var(--space-16);
+            background: #FFF5F5;
+            margin: var(--space-24) 0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="top-bar">
+        <div class="project-name">KodNest Premium</div>
+        <div class="progress-indicator">Step 01 / 08</div>
+        <div class="status-badge">In Progress</div>
+    </nav>
+
+    <header class="context-header">
+        <h1>Foundation & Environment</h1>
+        <p>Configure your core development parameters. This stage establishes the technical constraints for the upcoming build cycles.</p>
+    </header>
+
+    <main class="main-layout">
+        <section class="workspace">
+            <div class="card">
+                <h3 style="margin-bottom: var(--space-24);">Configuration Parameters</h3>
+                <div style="max-width: 480px;">
+                    <div style="margin-bottom: var(--space-24);">
+                        <label class="panel-label">Project Identifier</label>
+                        <input type="text" class="input-field" placeholder="e.g. build-alpha-7">
+                    </div>
+                    <div>
+                        <label class="panel-label">Security Protocol</label>
+                        <select class="input-field">
+                            <option>Standard B2C Encryption</option>
+                            <option>Advanced Enterprise Isolation</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="error-container">
+                <p style="font-weight: 600; color: var(--accent); font-size: 14px; margin-bottom: 4px;">Configuration Conflict</p>
+                <p style="font-size: 14px;">The Project Identifier is already in use. Please choose a unique name to ensure deployment coherence.</p>
+            </div>
+        </section>
+
+        <aside class="side-panel">
+            <div class="panel-section">
+                <label class="panel-label">Current Task</label>
+                <p style="font-size: 14px; margin-bottom: var(--space-16);">Initialize the primary environment settings. This prompt will set up the initial file structure and styling tokens.</p>
+                <div class="prompt-box">
+                    generate system-tokens --base #F7F6F3 --accent #8B0000 --type serif
+                </div>
+                <button class="btn btn-secondary">Copy Prompt</button>
+            </div>
+
+            <div class="panel-section" style="border-top: 1px solid var(--border); padding-top: var(--space-24);">
+                <label class="panel-label">Actions</label>
+                <button class="btn btn-primary">Build in Lovable</button>
+                <button class="btn btn-secondary">It Worked</button>
+                <button class="btn btn-secondary">Report Error</button>
+            </div>
+        </aside>
+    </main>
+
+    <footer class="proof-footer">
+        <div class="proof-item">
+            <input type="checkbox" id="ui-built">
+            <label for="ui-built">UI Built</label>
+        </div>
+        <div class="proof-item">
+            <input type="checkbox" id="logic-working">
+            <label for="logic-working">Logic Working</label>
+        </div>
+        <div class="proof-item">
+            <input type="checkbox" id="test-passed">
+            <label for="test-passed">Test Passed</label>
+        </div>
+        <div class="proof-item">
+            <input type="checkbox" id="deployed">
+            <label for="deployed">Deployed</label>
+        </div>
+    </footer>
+
+</body>
+</html>
