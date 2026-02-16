@@ -287,6 +287,7 @@ let dashboardFilters = {
     location: '',
     mode: '',
     source: '',
+    status: '',
     sort: 'latest'
 };
 
@@ -314,6 +315,14 @@ function renderFilterBar() {
                 <option value="Remote" ${dashboardFilters.mode === 'Remote' ? 'selected' : ''}>Remote</option>
                 <option value="Hybrid" ${dashboardFilters.mode === 'Hybrid' ? 'selected' : ''}>Hybrid</option>
                 <option value="Onsite" ${dashboardFilters.mode === 'Onsite' ? 'selected' : ''}>Onsite</option>
+            </select>
+            
+            <select id="filter-status" class="kn-filter-select" onchange="handleFilterChange()">
+                <option value="">Status: All</option>
+                <option value="Not Applied" ${dashboardFilters.status === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
+                <option value="Applied" ${dashboardFilters.status === 'Applied' ? 'selected' : ''}>Applied</option>
+                <option value="Rejected" ${dashboardFilters.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                <option value="Selected" ${dashboardFilters.status === 'Selected' ? 'selected' : ''}>Selected</option>
             </select>
             
             <select id="filter-src" class="kn-filter-select" onchange="handleFilterChange()">
@@ -349,6 +358,7 @@ window.handleFilterChange = function () {
     dashboardFilters.location = document.getElementById('filter-loc').value;
     dashboardFilters.mode = document.getElementById('filter-mode').value;
     dashboardFilters.source = document.getElementById('filter-src').value;
+    dashboardFilters.status = document.getElementById('filter-status').value;
     dashboardFilters.sort = document.getElementById('filter-sort').value;
 
     // Debounce re-render
@@ -399,6 +409,15 @@ function renderDashboard() {
     // Source
     const srcVal = dashboardFilters.source;
     if (srcVal) filtered = filtered.filter(j => j.source === srcVal);
+
+    // Status
+    const statusVal = dashboardFilters.status;
+    if (statusVal) {
+        filtered = filtered.filter(j => {
+            const s = jobStatuses[j.id]?.status || 'Not Applied';
+            return s === statusVal;
+        });
+    }
 
     // Match Threshold
     if (showOnlyMatches) {
@@ -647,6 +666,7 @@ function renderDigest() {
         `;
     }
 
+
     // 2. Render Digest (Email Style)
     const jobsHtml = digestData.jobs.map(job => `
         <div class="kn-digest-item" style="padding: 16px; border-bottom: 1px solid #EEE; display:flex; justify-content:space-between; align-items:flex-start;">
@@ -658,6 +678,34 @@ function renderDigest() {
             <a href="${job.applyUrl}" target="_blank" class="kn-btn kn-btn-sm kn-btn-secondary" style="margin-left:16px;">Apply</a>
         </div>
     `).join('');
+
+    // Recent Status Updates
+    const recentUpdates = Object.entries(jobStatuses)
+        .map(([id, data]) => {
+            const job = allJobs.find(j => j.id === id);
+            return job ? { ...job, status: data.status, statusDate: data.date } : null;
+        })
+        .filter(j => j)
+        .sort((a, b) => new Date(b.statusDate) - new Date(a.statusDate))
+        .slice(0, 5);
+
+    const updatesHtml = recentUpdates.length > 0 ? `
+        <div style="padding:16px; background:#FAFAFA; border-top:1px solid #EEE; border-bottom:1px solid #EEE; font-size:13px; color:#666; text-align:center; font-weight:bold; margin-top:0;">
+            Recent Status Updates
+        </div>
+        ${recentUpdates.map(job => `
+            <div class="kn-digest-item" style="padding: 12px 16px; border-bottom: 1px solid #EEE; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-size:14px; font-weight:600; color:#333;">${job.title}</div>
+                    <div style="font-size:12px; color:#666;">${job.company}</div>
+                </div>
+                <div style="text-align:right;">
+                     <span class="kn-tag status-${job.status.toLowerCase().replace(' ', '-')}" style="margin:0;">${job.status}</span>
+                     <div style="font-size:10px; color:#999; margin-top:2px;">${job.statusDate}</div>
+                </div>
+            </div>
+        `).join('')}
+    ` : '';
 
     return `
         <div class="kn-route-container" style="background-color:#F4F4F4; min-height:80vh; padding-top:40px;">
@@ -675,9 +723,12 @@ function renderDigest() {
                     </div>
                     ${jobsHtml}
                     ${digestData.jobs.length === 0 ? '<div style="padding:32px; text-align:center; color:#888;">No matching roles today. Check again tomorrow.</div>' : ''}
+                    
+                    ${updatesHtml}
                 </div>
 
                 <!-- Footer -->
+
                 <div style="background-color:#FAFAFA; padding:16px; border-top:1px solid #EEE; text-align:center; font-size:12px; color:#999;">
                     This digest was generated based on your preferences.<br>
                     <a href="#" onclick="window.scrollTo(0,0); return false;" style="color:#666; text-decoration:none;">Back to Top</a>
@@ -708,8 +759,125 @@ function renderProof() {
     `;
 }
 
+// Load Saved Jobs
+try {
+    const storedSaved = localStorage.getItem('kn_saved_jobs');
+    if (storedSaved) savedJobIds = JSON.parse(storedSaved);
+} catch (e) {
+    console.error("Error loading saved jobs:", e);
+}
+
+// Load Job Statuses
+let jobStatuses = {}; // { jobId: { status: 'Applied', date: '2023-10-27' } }
+try {
+    const storedStatus = localStorage.getItem('kn_job_statuses');
+    if (storedStatus) jobStatuses = JSON.parse(storedStatus);
+} catch (e) {
+    console.error("Error loading job statuses:", e);
+}
+
+// MATCH SCORE ENGINE
+function calculateMatchScore(job) {
+    if (!userPreferences.roleKeywords.length && !userPreferences.preferredLocations.length) return 0;
+
+    let score = 0;
+
+    // 1. Role Keywords (+25 Title, +15 Desc)
+    const jobTitle = job.title.toLowerCase();
+    const jobDesc = job.description.toLowerCase();
+    const hasTitleMatch = userPreferences.roleKeywords.some(k => jobTitle.includes(k.toLowerCase()));
+    const hasDescMatch = userPreferences.roleKeywords.some(k => jobDesc.includes(k.toLowerCase()));
+
+    if (hasTitleMatch) score += 25;
+    if (hasDescMatch) score += 15;
+
+    // 2. Location (+15)
+    // Precise match
+    if (userPreferences.preferredLocations.some(l => l.toLowerCase() === job.location.toLowerCase())) {
+        score += 15;
+    }
+
+    // 3. Mode (+10)
+    if (userPreferences.preferredMode.map(m => m.toLowerCase()).includes(job.mode.toLowerCase())) {
+        score += 10;
+    }
+
+    // 4. Experience (+10)
+    // Simple string match for MVP
+    if (userPreferences.experienceLevel && job.experience === userPreferences.experienceLevel) {
+        score += 10;
+    }
+
+    // 5. Skills Overlap (+15 if any match)
+    const userSkills = userPreferences.skills.map(s => s.toLowerCase());
+    const jobSkills = job.skills.map(s => s.toLowerCase());
+    const hasSkillMatch = jobSkills.some(s => userSkills.includes(s));
+    if (hasSkillMatch) score += 15;
+
+    // 6. Recency (+5 if <= 2 days)
+    if (job.postedDaysAgo <= 2) score += 5;
+
+    // 7. Source (+5 if LinkedIn)
+    if (job.source === 'LinkedIn') score += 5;
+
+    return Math.min(score, 100); // Cap at 100
+}
+
+// Load Data & Calc Scores
+if (typeof generateJobData === 'function') {
+    allJobs = generateJobData();
+    // Calculate scores immediately
+    allJobs.forEach(job => {
+        job.matchScore = calculateMatchScore(job);
+    });
+    console.log("Jobs Loaded & Scored:", allJobs.length);
+} else {
+    console.error("Job Data Generator not found!");
+}
 
 // --- INTERACTIONS ---
+
+window.updateJobStatus = function (id, newStatus) {
+    if (!newStatus) return;
+
+    // Update State
+    const today = new Date().toISOString().split('T')[0];
+    if (newStatus === 'Not Applied') {
+        delete jobStatuses[id];
+    } else {
+        jobStatuses[id] = { status: newStatus, date: today };
+    }
+
+    // Persist
+    localStorage.setItem('kn_job_statuses', JSON.stringify(jobStatuses));
+
+    // Visual Feedback
+    const select = document.getElementById(`status-${id}`);
+    if (select) {
+        select.className = `kn-status-select status-${newStatus.toLowerCase().replace(' ', '-')}`;
+    }
+
+    // Toast
+    showToast(`Status updated: ${newStatus}`);
+
+    // Re-render if filtering is active (optional, but good for consistency)
+    // For now, let's keep it simple to avoid jumping UI.
+};
+
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'kn-toast';
+    toast.innerText = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }, 100);
+}
 
 window.toggleSaveJob = function (id) {
     const btn = document.getElementById(`btn-save-${id}`);
@@ -833,6 +1001,58 @@ function renderRoute(path) {
     window.scrollTo(0, 0);
 }
 
+
+function renderJobCard(job, isSaved) {
+    const saveBtnText = isSaved ? 'Saved \u2713' : 'Save';
+    const saveBtnClass = isSaved ? 'kn-btn kn-btn-sm kn-btn-primary' : 'kn-btn kn-btn-sm kn-btn-secondary';
+
+    // Match Score Logic
+    let matchClass = 'kn-match-low';
+    if (job.matchScore >= 80) matchClass = 'kn-match-high';
+    else if (job.matchScore >= 60) matchClass = 'kn-match-medium';
+    else if (job.matchScore >= 40) matchClass = 'kn-match-neutral';
+
+    const matchBadge = `<div class="kn-match-badge ${matchClass}">Match: ${job.matchScore || 0}%</div>`;
+
+    // Status Logic
+    const statusData = jobStatuses[job.id] || { status: 'Not Applied' };
+    const currentStatus = statusData.status;
+    const statusClass = `status-${currentStatus.toLowerCase().replace(' ', '-')}`;
+
+    return `
+    <div class="kn-job-card" id="${job.id}">
+        ${matchBadge}
+        <div class="kn-source-badge">${job.source}</div>
+        <div class="kn-posted-date">${job.postedDaysAgo === 0 ? 'Today' : job.postedDaysAgo + 'd ago'}</div>
+        
+        <h3 class="kn-job-title" onclick="openJobModal('${job.id}')">${job.title}</h3>
+        <div class="kn-job-company">${job.company}</div>
+        
+        <div class="kn-job-tags">
+            <span class="kn-tag">${job.location}</span>
+            <span class="kn-tag">${job.mode}</span>
+            <span class="kn-tag">${job.experience}</span>
+        </div>
+        
+        <div class="kn-job-salary">${job.salaryRange}</div>
+        
+        <div class="kn-card-actions" style="margin-top: 16px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; gap:8px;">
+                <button class="${saveBtnClass}" id="btn-save-${job.id}" onclick="toggleSaveJob('${job.id}')">${saveBtnText}</button>
+                <a href="${job.applyUrl}" target="_blank" class="kn-btn kn-btn-sm kn-btn-secondary">Apply</a>
+            </div>
+            
+            <select id="status-${job.id}" class="kn-status-select ${statusClass}" onchange="updateJobStatus('${job.id}', this.value)" onclick="event.stopPropagation()">
+                <option value="Not Applied" ${currentStatus === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
+                <option value="Applied" ${currentStatus === 'Applied' ? 'selected' : ''}>Applied</option>
+                <option value="Rejected" ${currentStatus === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                <option value="Selected" ${currentStatus === 'Selected' ? 'selected' : ''}>Selected</option>
+            </select>
+        </div>
+    </div>
+    `;
+}
+
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     // Handle Initial Load
@@ -860,4 +1080,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-

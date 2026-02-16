@@ -776,6 +776,67 @@ p {
     border-bottom: none !important;
 }
 
-.kn-digest-item:hover {
-    background-color: #F8F8F8;
+
+/* --- Status Dropdown --- */
+.kn-status-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: #F5F5F5;
+    border: 1px solid #EEE;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.kn-status-select:hover {
+    filter: brightness(0.95);
+}
+
+.kn-status-select.status-applied {
+    background-color: #E3F2FD;
+    color: #1565C0;
+    border-color: #BBDEFB;
+}
+
+.kn-status-select.status-rejected {
+    background-color: #FFEBEE;
+    color: #C62828;
+    border-color: #FFCDD2;
+}
+
+.kn-status-select.status-selected {
+    background-color: #E8F5E9;
+    color: #2E7D32;
+    border-color: #C8E6C9;
+}
+
+.kn-status-select.status-not-applied {
+    background-color: #F5F5F5;
+    color: #616161;
+}
+
+/* --- Toast Notification --- */
+.kn-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background-color: #323232;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 1000;
+}
+
+.kn-toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
 }
