@@ -850,3 +850,40 @@ p {
     text-decoration: line-through;
     color: #888;
 }
+
+
+/* --- Proof Page Styles --- */
+.kn-step-summary {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #EEE;
+    margin-bottom: 24px;
+}
+
+.kn-input-group {
+    margin-bottom: 16px;
+}
+
+.kn-input-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.kn-input-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #DDD;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+/* Status Badge Variant */
+.kn-badge-status.shipped {
+    background: #E6FFFA;
+    color: #006D5B;
+    border: 1px solid #006D5B;
+}
