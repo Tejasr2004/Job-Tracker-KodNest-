@@ -761,3 +761,21 @@ p {
 .kn-toggle-input:checked+.kn-toggle-slider::before {
     transform: translateX(16px);
 }
+
+
+/* --- Digest Styles --- */
+.kn-digest-paper {
+    transition: var(--transition-standard);
+}
+
+.kn-digest-paper:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.kn-digest-item:last-child {
+    border-bottom: none !important;
+}
+
+.kn-digest-item:hover {
+    background-color: #F8F8F8;
+}

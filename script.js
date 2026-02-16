@@ -561,18 +561,138 @@ function renderSaved() {
     `;
 }
 
+
+window.generateDigest = function () {
+    const today = new Date().toISOString().split('T')[0];
+    const digestKey = `jobTrackerDigest_${today}`;
+
+    // Sort logic: Match Score DESC, then Date Posted ASC (freshness) -> actually prompt said PostedDaysAgo ASC (which means smaller number = fresher)
+    // "1) matchScore descending, 2) postedDaysAgo ascending"
+    const candidates = [...allJobs].sort((a, b) => {
+        if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
+        return a.postedDaysAgo - b.postedDaysAgo;
+    });
+
+    const top10 = candidates.slice(0, 10);
+
+    // Store
+    const digestData = {
+        date: today,
+        jobs: top10
+    };
+    localStorage.setItem(digestKey, JSON.stringify(digestData));
+
+    // Re-render
+    renderRoute('/digest');
+};
+
+window.copyDigest = function () {
+    const content = document.getElementById('digest-content').innerText;
+    navigator.clipboard.writeText(content).then(() => {
+        const btn = document.getElementById('btn-copy-digest');
+        const original = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => btn.innerText = original, 2000);
+    });
+};
+
+window.emailDigest = function () {
+    const subject = "My 9AM Job Digest";
+    const body = encodeURIComponent(document.getElementById('digest-content').innerText);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+};
+
 function renderDigest() {
+    const today = new Date().toISOString().split('T')[0];
+    const digestKey = `jobTrackerDigest_${today}`;
+
+    // Check for existing digest
+    let digestData = null;
+    try {
+        const stored = localStorage.getItem(digestKey);
+        if (stored) digestData = JSON.parse(stored);
+    } catch (e) {
+        console.error(e);
+    }
+
+    // 1. Empty State / Generator
+    if (!digestData) {
+        // Blocking if no preferences
+        const hasPrefs = userPreferences.roleKeywords.length > 0 || userPreferences.preferredLocations.length > 0;
+        if (!hasPrefs) {
+            return `
+                <div class="kn-route-container">
+                    <h1 class="kn-route-title">Daily Digest</h1>
+                    <div class="kn-empty-state">
+                        <div class="kn-empty-state-icon" style="color:#B0BEC5;">&#9888;</div>
+                        <h3>Personalization Required</h3>
+                        <p>Set your preferences to generate a personalized daily digest.</p>
+                        <a href="/settings" class="kn-btn kn-btn-primary" data-link style="margin-top:16px;">Set Preferences</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="kn-route-container">
+                <h1 class="kn-route-title">Daily Digest</h1>
+                <div class="kn-empty-state">
+                    <div class="kn-empty-state-icon">&#128231;</div>
+                    <h3>Your 9AM Briefing</h3>
+                    <p>Generate your curated list of top opportunities for today (${today}).</p>
+                    <button onclick="generateDigest()" class="kn-btn kn-btn-primary" style="margin-top:24px;">Generate Today's Digest (Simulated)</button>
+                    <div style="margin-top:12px; font-size:12px; color:#999;">Demo Mode: Daily trigger simulated manually.</div>
+                </div>
+            </div>
+        `;
+    }
+
+    // 2. Render Digest (Email Style)
+    const jobsHtml = digestData.jobs.map(job => `
+        <div class="kn-digest-item" style="padding: 16px; border-bottom: 1px solid #EEE; display:flex; justify-content:space-between; align-items:flex-start;">
+            <div style="flex:1;">
+                <div style="font-weight:700; font-size:16px; color:#333; margin-bottom:4px;">${job.title}</div>
+                <div style="font-size:14px; color:#666; margin-bottom:8px;">${job.company} &bull; ${job.location}</div>
+                <div style="font-size:12px; color:#888;">${job.experience} &bull; Match: <strong style="color:var(--color-success);">${job.matchScore}%</strong></div>
+            </div>
+            <a href="${job.applyUrl}" target="_blank" class="kn-btn kn-btn-sm kn-btn-secondary" style="margin-left:16px;">Apply</a>
+        </div>
+    `).join('');
+
     return `
-        <div class="kn-route-container">
-            <h1 class="kn-route-title">Daily Digest</h1>
-            <div class="kn-empty-state">
-                <div class="kn-empty-state-icon">&#128231;</div>
-                <h3>No digest generated yet</h3>
-                <p>Your daily summary of new opportunities will arrive at 9:00 AM.</p>
+        <div class="kn-route-container" style="background-color:#F4F4F4; min-height:80vh; padding-top:40px;">
+            <div class="kn-digest-paper" style="max-width:600px; margin:0 auto; background:white; border:1px solid #DDD; border-radius:8px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+                <!-- Header -->
+                <div style="background-color:var(--color-text); color:white; padding:24px; text-align:center;">
+                    <h2 style="font-family:var(--font-heading); margin:0; font-size:24px;">Top 10 Jobs For You</h2>
+                    <div style="font-size:13px; opacity:0.8; margin-top:8px; letter-spacing:1px; text-transform:uppercase;">9AM Digest &bull; ${today}</div>
+                </div>
+
+                <!-- Content -->
+                <div id="digest-content">
+                    <div style="padding:16px; background:#FAFAFA; border-bottom:1px solid #EEE; font-size:13px; color:#666; text-align:center;">
+                        High-priority matches based on your preferences.
+                    </div>
+                    ${jobsHtml}
+                    ${digestData.jobs.length === 0 ? '<div style="padding:32px; text-align:center; color:#888;">No matching roles today. Check again tomorrow.</div>' : ''}
+                </div>
+
+                <!-- Footer -->
+                <div style="background-color:#FAFAFA; padding:16px; border-top:1px solid #EEE; text-align:center; font-size:12px; color:#999;">
+                    This digest was generated based on your preferences.<br>
+                    <a href="#" onclick="window.scrollTo(0,0); return false;" style="color:#666; text-decoration:none;">Back to Top</a>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div style="max-width:600px; margin:24px auto; display:flex; gap:16px; justify-content:center;">
+                <button id="btn-copy-digest" onclick="copyDigest()" class="kn-btn kn-btn-secondary" style="background:white;">Copy to Clipboard</button>
+                <button onclick="emailDigest()" class="kn-btn kn-btn-secondary" style="background:white;">Create Email Draft</button>
             </div>
         </div>
     `;
 }
+
 
 function renderProof() {
     return `
