@@ -836,7 +836,17 @@ p {
     z-index: 1000;
 }
 
-.kn-toast.show {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
+
+/* --- Test Checklist --- */
+.kn-checklist-item {
+    user-select: none;
+}
+
+.kn-checklist-item:hover {
+    background-color: #F5F5F5 !important;
+}
+
+.kn-checklist-item input:checked+span {
+    text-decoration: line-through;
+    color: #888;
 }

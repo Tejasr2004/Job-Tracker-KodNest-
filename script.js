@@ -744,6 +744,106 @@ function renderDigest() {
     `;
 }
 
+window.toggleTestItem = function (index) {
+    testChecklist[index] = !testChecklist[index];
+    localStorage.setItem('kn_test_checklist', JSON.stringify(testChecklist));
+    renderRoute('/jt/07-test'); // Re-render to update UI
+};
+
+window.resetTestChecklist = function () {
+    if (confirm("Reset all test progress?")) {
+        testChecklist = Array(10).fill(false);
+        localStorage.setItem('kn_test_checklist', JSON.stringify(testChecklist));
+        renderRoute('/jt/07-test');
+    }
+};
+
+function renderTestChecklist() {
+    const items = [
+        "Preferences persist after refresh",
+        "Match score calculates correctly",
+        '"Show only matches" toggle works',
+        "Save job persists after refresh",
+        "Apply opens in new tab",
+        "Status update persists after refresh",
+        "Status filter works correctly",
+        "Digest generates top 10 by score",
+        "Digest persists for the day",
+        "No console errors on main pages"
+    ];
+
+    const passedCount = testChecklist.filter(Boolean).length;
+    const isPassing = passedCount === 10;
+    const progressColor = isPassing ? 'var(--color-success)' : '#F57C00';
+
+    return `
+        <div class="kn-route-container" style="max-width: 800px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                <h1 class="kn-route-title" style="margin:0;">Test Checklist</h1>
+                <button onclick="resetTestChecklist()" class="kn-btn kn-btn-sm kn-btn-secondary">Reset Test Status</button>
+            </div>
+
+            <div style="background:white; padding:24px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.05); border:1px solid #EEE;">
+                <div style="margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid #EEE; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 style="margin:0; font-size:18px;">Tests Passed: <span style="color:${progressColor}">${passedCount} / 10</span></h3>
+                        ${!isPassing ? '<div style="font-size:13px; color:#666; margin-top:4px;">Resolve all issues before shipping.</div>' : '<div style="font-size:13px; color:var(--color-success); margin-top:4px;">All systems go! Ready to ship.</div>'}
+                    </div>
+                    <div style="font-size:32px;">${isPassing ? '&#9989;' : '&#128295;'}</div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    ${items.map((item, i) => `
+                        <label class="kn-checklist-item" style="display:flex; align-items:center; padding:12px; border:1px solid #EEE; border-radius:6px; cursor:pointer; background:${testChecklist[i] ? '#F9FFF9' : 'white'}; transition:all 0.2s;">
+                            <input type="checkbox" onchange="toggleTestItem(${i})" ${testChecklist[i] ? 'checked' : ''} style="width:20px; height:20px; margin-right:16px; cursor:pointer;">
+                            <span style="font-size:15px; ${testChecklist[i] ? 'text-decoration:line-through; color:#888;' : 'color:#333;'}">${item}</span>
+                        </label>
+                    `).join('')}
+                </div>
+                
+                ${isPassing ? `
+                    <div style="margin-top:24px; text-align:center;">
+                        <button onclick="window.location.hash='/jt/08-ship'" class="kn-btn kn-btn-primary" style="width:100%; padding:16px; font-size:16px;">Proceed to Ship &rarr;</button>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+        `;
+}
+
+function renderShip() {
+    const passedCount = testChecklist.filter(Boolean).length;
+
+    if (passedCount < 10) {
+        return `
+            <div class="kn-route-container" style="text-align:center; padding-top:80px;">
+                <div style="font-size:64px; margin-bottom:24px;">&#128274;</div>
+                <h1 style="margin-bottom:16px;">Ship Locked</h1>
+                <p style="color:#666; max-width:400px; margin:0 auto 32px auto;">You must verify all 10 items on the checklist before you can access the shipping controls.</p>
+                <a href="#/jt/07-test" class="kn-btn kn-btn-primary">Go to Checklist</a>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="kn-route-container" style="text-align:center; padding-top:60px;">
+            <div style="font-size:64px; margin-bottom:24px;">&#128640;</div>
+            <h1 style="margin-bottom:16px; color:var(--color-success);">Ready to Ship!</h1>
+            <p style="color:#666; max-width:500px; margin:0 auto 32px auto;">All tests passed. You are cleared to deploy the Job Notification Tracker v1.0.</p>
+            
+            <div style="padding:24px; background:white; border:1px solid #EEE; border-radius:8px; max-width:500px; margin:0 auto; text-align:left;">
+                <h3 style="margin-bottom:16px;">Release Notes</h3>
+                <ul style="color:#555; line-height:1.6; padding-left:20px;">
+                    <li>Preferences Engine & LocalStorage Persistence</li>
+                    <li>Deterministic Match Scoring (0-100)</li>
+                    <li>Daily Digest with Email-Style UI</li>
+                    <li>Job Status Tracking (Applied/Rejected/Selected)</li>
+                    <li>Built-in Test Suite</li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
 
 function renderProof() {
     return `
@@ -767,6 +867,7 @@ try {
     console.error("Error loading saved jobs:", e);
 }
 
+
 // Load Job Statuses
 let jobStatuses = {}; // { jobId: { status: 'Applied', date: '2023-10-27' } }
 try {
@@ -776,9 +877,20 @@ try {
     console.error("Error loading job statuses:", e);
 }
 
+// Load Test Checklist
+let testChecklist = Array(10).fill(false);
+try {
+    const storedChecklist = localStorage.getItem('kn_test_checklist');
+    if (storedChecklist) testChecklist = JSON.parse(storedChecklist);
+} catch (e) {
+    console.error("Error loading checklist:", e);
+}
+
 // MATCH SCORE ENGINE
 function calculateMatchScore(job) {
     if (!userPreferences.roleKeywords.length && !userPreferences.preferredLocations.length) return 0;
+    // ... (rest of match score logic)
+
 
     let score = 0;
 
@@ -918,21 +1030,21 @@ window.openJobModal = function (id) {
                     <h2 style="font-family:var(--font-heading); margin-bottom:8px;">${job.title}</h2>
                     <h3 style="font-size:18px; color:#555; font-weight:500;">${job.company}</h3>
                 </div>
-                
+
                 <div class="kn-job-meta" style="font-size:14px; margin-bottom:24px;">
                     <span class="kn-tag">${job.location}</span>
                     <span class="kn-tag">${job.mode}</span>
                     <span class="kn-tag">${job.experience}</span>
                     <span class="kn-tag">${job.salaryRange}</span>
                 </div>
-                
+
                 <p style="margin-bottom:24px; color:#333; line-height:1.7;">${job.description}</p>
-                
+
                 <h4 style="font-size:14px; text-transform:uppercase; color:#999; margin-bottom:12px;">Skills</h4>
                 <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:32px;">
                     ${job.skills.map(s => `<span class="kn-tag" style="background:#E0E0E0;">${s}</span>`).join('')}
                 </div>
-                
+
                 <div style="display:flex; gap:16px;">
                     <a href="${job.applyUrl}" target="_blank" class="kn-btn kn-btn-primary" style="flex:2; text-decoration:none; text-align:center;">Apply Now</a>
                     <button class="kn-btn kn-btn-secondary" style="flex:1;" onclick="toggleSaveJob('${job.id}'); closeJobModal(null, true);">
@@ -941,7 +1053,7 @@ window.openJobModal = function (id) {
                 </div>
             </div>
         </div>
-    `;
+        `;
 
     // Append to body
     const existingModal = document.getElementById('job-modal');
@@ -961,6 +1073,7 @@ window.closeJobModal = function (e, force = false) {
 };
 
 
+
 // --- ROUTER ---
 
 const routes = {
@@ -969,7 +1082,9 @@ const routes = {
     '/settings': renderSettings,
     '/saved': renderSaved,
     '/digest': renderDigest,
-    '/proof': renderProof
+    '/proof': renderProof,
+    '/jt/07-test': renderTestChecklist,
+    '/jt/08-ship': renderShip
 };
 
 
@@ -982,6 +1097,9 @@ function renderRoute(path) {
 
     // Update Content
     appContent.innerHTML = renderFn();
+
+    // ... (rest of router logic)
+
 
     // Update Active Link State
     navLinks.forEach(link => {
@@ -1002,6 +1120,8 @@ function renderRoute(path) {
 }
 
 
+
+
 function renderJobCard(job, isSaved) {
     const saveBtnText = isSaved ? 'Saved \u2713' : 'Save';
     const saveBtnClass = isSaved ? 'kn-btn kn-btn-sm kn-btn-primary' : 'kn-btn kn-btn-sm kn-btn-secondary';
@@ -1020,38 +1140,39 @@ function renderJobCard(job, isSaved) {
     const statusClass = `status-${currentStatus.toLowerCase().replace(' ', '-')}`;
 
     return `
-    <div class="kn-job-card" id="${job.id}">
-        ${matchBadge}
-        <div class="kn-source-badge">${job.source}</div>
-        <div class="kn-posted-date">${job.postedDaysAgo === 0 ? 'Today' : job.postedDaysAgo + 'd ago'}</div>
-        
-        <h3 class="kn-job-title" onclick="openJobModal('${job.id}')">${job.title}</h3>
-        <div class="kn-job-company">${job.company}</div>
-        
-        <div class="kn-job-tags">
-            <span class="kn-tag">${job.location}</span>
-            <span class="kn-tag">${job.mode}</span>
-            <span class="kn-tag">${job.experience}</span>
-        </div>
-        
-        <div class="kn-job-salary">${job.salaryRange}</div>
-        
-        <div class="kn-card-actions" style="margin-top: 16px; display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; gap:8px;">
-                <button class="${saveBtnClass}" id="btn-save-${job.id}" onclick="toggleSaveJob('${job.id}')">${saveBtnText}</button>
-                <a href="${job.applyUrl}" target="_blank" class="kn-btn kn-btn-sm kn-btn-secondary">Apply</a>
+        <div class="kn-job-card" id="${job.id}">
+            ${matchBadge}
+            <div class="kn-source-badge">${job.source}</div>
+            <div class="kn-posted-date">${job.postedDaysAgo === 0 ? 'Today' : job.postedDaysAgo + 'd ago'}</div>
+            
+            <h3 class="kn-job-title" onclick="openJobModal('${job.id}')">${job.title}</h3>
+            <div class="kn-job-company">${job.company}</div>
+            
+            <div class="kn-job-tags">
+                <span class="kn-tag">${job.location}</span>
+                <span class="kn-tag">${job.mode}</span>
+                <span class="kn-tag">${job.experience}</span>
             </div>
             
-            <select id="status-${job.id}" class="kn-status-select ${statusClass}" onchange="updateJobStatus('${job.id}', this.value)" onclick="event.stopPropagation()">
-                <option value="Not Applied" ${currentStatus === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
-                <option value="Applied" ${currentStatus === 'Applied' ? 'selected' : ''}>Applied</option>
-                <option value="Rejected" ${currentStatus === 'Rejected' ? 'selected' : ''}>Rejected</option>
-                <option value="Selected" ${currentStatus === 'Selected' ? 'selected' : ''}>Selected</option>
-            </select>
+            <div class="kn-job-salary">${job.salaryRange}</div>
+            
+            <div class="kn-card-actions" style="margin-top: 16px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; gap:8px;">
+                    <button class="${saveBtnClass}" id="btn-save-${job.id}" onclick="toggleSaveJob('${job.id}')">${saveBtnText}</button>
+                    <a href="${job.applyUrl}" target="_blank" class="kn-btn kn-btn-sm kn-btn-secondary">Apply</a>
+                </div>
+                
+                <select id="status-${job.id}" class="kn-status-select ${statusClass}" onchange="updateJobStatus('${job.id}', this.value)" onclick="event.stopPropagation()">
+                    <option value="Not Applied" ${currentStatus === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
+                    <option value="Applied" ${currentStatus === 'Applied' ? 'selected' : ''}>Applied</option>
+                    <option value="Rejected" ${currentStatus === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                    <option value="Selected" ${currentStatus === 'Selected' ? 'selected' : ''}>Selected</option>
+                </select>
+            </div>
         </div>
-    </div>
     `;
 }
+
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
@@ -1079,4 +1200,5 @@ document.addEventListener('DOMContentLoaded', () => {
             navbar.classList.toggle('open');
         });
     }
-});
+})
+
