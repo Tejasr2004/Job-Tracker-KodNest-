@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KodNest Premium Build System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <header class="kn-top-bar">
+        <div class="project-name">KodNest Premium Build System</div>
+        <div class="progress-indicator">Step 1 / 5</div>
+        <div class="kn-badge kn-badge-status">In Progress</div>
+    </header>
+
+    <!-- Context Header -->
+    <section class="kn-context-header">
+        <h1>Configure Your Environment</h1>
+        <p class="subtext">Initialize your workspace with the necessary dependencies and configuration files to begin development.</p>
+    </section>
+
+    <!-- Main Workspace Area -->
+    <main class="kn-main-wrapper">
+        
+        <!-- Primary Workspace (70%) -->
+        <div class="kn-workspace">
+            <h3>Configuration Settings</h3>
+            <p style="margin-bottom: 24px; color: #666;">Adjust the core settings for your new project deployment.</p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Project Name</label>
+                    <input type="text" class="kn-input" placeholder="e.g. My Awesome App" value="KodNest Alpha">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Environment</label>
+                    <select class="kn-input">
+                        <option>Production</option>
+                        <option>Staging</option>
+                        <option>Development</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="kn-card" style="margin-bottom: 24px;">
+                <h4 style="margin-bottom: 16px;">Database Connection</h4>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Connection String</label>
+                    <input type="password" class="kn-input" value="postgres://user:pass@localhost:5432/db">
+                </div>
+                <div style="display: flex; justify-content: flex-end;">
+                     <button class="kn-btn kn-btn-secondary">Test Connection</button>
+                </div>
+            </div>
+
+            <!-- Empty State Example -->
+             <div style="text-align: center; padding: 40px; color: #888;">
+                <p>No active deployments found.</p>
+                <button class="kn-btn kn-btn-primary" style="margin-top: 16px;">Create New Deployment</button>
+             </div>
+
+        </div>
+
+        <!-- Secondary Panel (30%) -->
+        <aside class="kn-secondary-panel">
+            <div class="kn-card" style="border: none; background: transparent; padding: 0;">
+                <h4 style="font-size: 14px; text-transform: uppercase; color: #666; letter-spacing: 1px;">Step Guidance</h4>
+                <p style="font-size: 14px; margin-bottom: 16px;">Use the prompt below to generate the initial config files using your AI assistant.</p>
+                
+                <div class="kn-prompt-box">
+                    Generate a config.json file with production defaults and setup the primary database connection pooling.
+                </div>
+
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="kn-btn kn-btn-secondary" style="font-size: 12px; padding: 8px 16px;">Copy Prompt</button>
+                    <button class="kn-btn kn-btn-secondary" style="font-size: 12px; padding: 8px 16px;">Build in Lovable</button>
+                </div>
+            </div>
+            
+            <div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px;">
+                <button class="kn-btn kn-btn-primary" style="width: 100%;">It Worked</button>
+                <button class="kn-btn kn-btn-secondary" style="width: 100%; border-color: #d32f2f; color: #d32f2f;">Report Error</button>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Proof Footer -->
+    <footer class="kn-proof-footer">
+        <div class="kn-checklist">
+            <label class="kn-checkbox-item">
+                <input type="checkbox" checked> UI Built
+            </label>
+            <label class="kn-checkbox-item">
+                <input type="checkbox"> Logic Working
+            </label>
+            <label class="kn-checkbox-item">
+                <input type="checkbox"> Test Passed
+            </label>
+            <label class="kn-checkbox-item">
+                <input type="checkbox"> Deployed
+            </label>
+        </div>
+        <div>
+            <span style="font-size: 12px; color: #888; margin-right: 16px;">Auto-saving...</span>
+            <button class="kn-btn kn-btn-primary" style="padding: 8px 24px;">Next Step &rarr;</button>
+        </div>
+    </footer>
+
+</body>
+</html>

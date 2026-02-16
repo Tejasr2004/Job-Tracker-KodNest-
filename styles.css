@@ -1,0 +1,284 @@
+/* 
+   KodNest Premium Build System 
+   Design Philosophy: Calm, Intentional, Coherent, Confident
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap');
+
+:root {
+    /* Color System */
+    --color-bg: #F7F6F3;
+    --color-text: #111111;
+    --color-accent: #8B0000;
+    --color-accent-hover: #660000;
+    --color-success: #4A6E46; /* Muted Green */
+    --color-warning: #B48B3E; /* Muted Amber */
+    --color-border: #E0E0E0;
+    --color-white: #FFFFFF;
+
+    /* Spacing System */
+    --space-1: 8px;
+    --space-2: 16px;
+    --space-3: 24px;
+    --space-4: 40px;
+    --space-5: 64px;
+
+    /* Typography */
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Transition */
+    --transition-standard: all 150ms ease-in-out;
+}
+
+/* Global Reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* Typography Defaults */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: var(--space-2);
+}
+
+p {
+    max-width: 720px;
+    margin-bottom: var(--space-2);
+}
+
+/* Utility Classes */
+.kn-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+    width: 100%;
+}
+
+/* --- Components --- */
+
+/* Buttons */
+.kn-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 14px;
+    border-radius: 4px; /* Slight rounding, not fully rounded */
+    cursor: pointer;
+    transition: var(--transition-standard);
+    text-decoration: none;
+    border: 1px solid transparent;
+}
+
+.kn-btn-primary {
+    background-color: var(--color-accent);
+    color: var(--color-white);
+}
+
+.kn-btn-primary:hover {
+    background-color: var(--color-accent-hover);
+}
+
+.kn-btn-secondary {
+    background-color: transparent;
+    border-color: var(--color-text);
+    color: var(--color-text);
+}
+
+.kn-btn-secondary:hover {
+    background-color: rgba(17, 17, 17, 0.05);
+}
+
+/* Forms & Inputs */
+.kn-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-white);
+    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--color-text);
+    transition: var(--transition-standard);
+}
+
+.kn-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+/* Cards */
+.kn-card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: var(--space-3);
+}
+
+/* Badges */
+.kn-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.kn-badge-status {
+    background-color: #ECECEC;
+    color: #666;
+}
+
+/* --- Layout Sections --- */
+
+/* Top Bar */
+.kn-top-bar {
+    height: 60px;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-4);
+    background-color: var(--color-bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.kn-top-bar .project-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.kn-top-bar .progress-indicator {
+    font-family: var(--font-heading);
+    font-style: italic;
+    color: #666;
+}
+
+/* Context Header */
+.kn-context-header {
+    padding: var(--space-5) var(--space-4) var(--space-4);
+    max-width: 1000px;
+}
+
+.kn-context-header h1 {
+    font-size: 48px;
+    margin-bottom: var(--space-2);
+}
+
+.kn-context-header .subtext {
+    font-size: 18px;
+    color: #555;
+    max-width: 600px;
+}
+
+/* Main Layout */
+.kn-main-wrapper {
+    display: flex;
+    flex: 1;
+    padding: 0 var(--space-4) var(--space-5); /* Bottom padding for footer */
+    gap: var(--space-5);
+    height: calc(100vh - 200px); /* Approximate height calculation */
+}
+
+.kn-workspace {
+    flex: 7;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: var(--space-4);
+    overflow-y: auto;
+}
+
+.kn-secondary-panel {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-top: var(--space-2);
+}
+
+/* Prompt Box in Secondary Panel */
+.kn-prompt-box {
+    background-color: #F0EFED;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: var(--space-3);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    color: #333;
+    margin-bottom: var(--space-2);
+}
+
+/* Proof Footer */
+.kn-proof-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--color-white);
+    border-top: 1px solid var(--color-border);
+    padding: var(--space-3) var(--space-4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 200;
+}
+
+.kn-checklist {
+    display: flex;
+    gap: var(--space-4);
+}
+
+.kn-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.kn-checkbox-item input[type="checkbox"] {
+    accent-color: var(--color-accent);
+    width: 16px;
+    height: 16px;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #CCC;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #BBB;
+}
