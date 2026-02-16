@@ -11,8 +11,10 @@
     --color-text: #111111;
     --color-accent: #8B0000;
     --color-accent-hover: #660000;
-    --color-success: #4A6E46; /* Muted Green */
-    --color-warning: #B48B3E; /* Muted Amber */
+    --color-success: #4A6E46;
+    /* Muted Green */
+    --color-warning: #B48B3E;
+    /* Muted Amber */
     --color-border: #E0E0E0;
     --color-white: #FFFFFF;
 
@@ -32,7 +34,9 @@
 }
 
 /* Global Reset */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -52,7 +56,12 @@ body {
 }
 
 /* Typography Defaults */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: var(--font-heading);
     font-weight: 700;
     line-height: 1.2;
@@ -83,7 +92,8 @@ p {
     font-family: var(--font-body);
     font-weight: 500;
     font-size: 14px;
-    border-radius: 4px; /* Slight rounding, not fully rounded */
+    border-radius: 4px;
+    /* Slight rounding, not fully rounded */
     cursor: pointer;
     transition: var(--transition-standard);
     text-decoration: none;
@@ -199,9 +209,11 @@ p {
 .kn-main-wrapper {
     display: flex;
     flex: 1;
-    padding: 0 var(--space-4) var(--space-5); /* Bottom padding for footer */
+    padding: 0 var(--space-4) var(--space-5);
+    /* Bottom padding for footer */
     gap: var(--space-5);
-    height: calc(100vh - 200px); /* Approximate height calculation */
+    height: calc(100vh - 200px);
+    /* Approximate height calculation */
 }
 
 .kn-workspace {
@@ -272,13 +284,100 @@ p {
 ::-webkit-scrollbar {
     width: 8px;
 }
+
 ::-webkit-scrollbar-track {
     background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
     background: #CCC;
     border-radius: 4px;
 }
-::-webkit-scrollbar-thumb:hover {
-    background: #BBB;
+
+/* --- Navigation Bar --- */
+.kn-navbar {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+}
+
+.kn-nav-link {
+    text-decoration: none;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 0;
+    border-bottom: 2px solid transparent;
+    transition: var(--transition-standard);
+    opacity: 0.7;
+}
+
+.kn-nav-link:hover {
+    opacity: 1;
+}
+
+.kn-nav-link.active {
+    opacity: 1;
+    border-bottom-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.kn-mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--color-text);
+}
+
+/* Mobile Navigation Styles */
+@media (max-width: 768px) {
+    .kn-top-bar {
+        position: relative;
+    }
+
+    .kn-navbar {
+        display: none;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        background-color: var(--color-white);
+        flex-direction: column;
+        padding: var(--space-2);
+        border-bottom: 1px solid var(--color-border);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+    }
+
+    .kn-navbar.open {
+        display: flex;
+    }
+
+    .kn-mobile-menu-toggle {
+        display: block;
+    }
+}
+
+/* --- Route Content --- */
+.kn-route-container {
+    padding: var(--space-5) var(--space-4);
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+    margin-top: var(--space-5);
+}
+
+.kn-route-title {
+    font-size: 48px;
+    margin-bottom: var(--space-2);
+    color: var(--color-text);
+}
+
+.kn-route-subtext {
+    font-size: 18px;
+    color: #666;
+    font-family: var(--font-body);
 }
