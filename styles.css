@@ -667,13 +667,97 @@ p {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 }
 
-.kn-close-modal {
+
+/* --- Match Score Badges --- */
+.kn-match-badge {
     position: absolute;
     top: 16px;
     right: 16px;
-    font-size: 24px;
-    background: none;
-    border: none;
+    /* Adjusting source badge to left or stacking? 
+       Actually user spec says "Display matchScore as a badge". 
+       Source badge is currently top-right. Let's move source to top-left or stack them.
+       Let's put match badge on top-right and source on top-left to avoid overlap.
+    */
+    background-color: #F0F0F0;
+    color: #333;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    z-index: 2;
+}
+
+/* Adjust source badge to top-left to make room */
+.kn-source-badge {
+    right: auto;
+    left: 16px;
+}
+
+.kn-match-high {
+    background-color: #E8F5E9;
+    color: #2E7D32;
+    border: 1px solid #C8E6C9;
+}
+
+.kn-match-medium {
+    background-color: #FFF8E1;
+    color: #F57F17;
+    border: 1px solid #FFE0B2;
+}
+
+.kn-match-neutral {
+    background-color: #F5F5F5;
+    color: #616161;
+    border: 1px solid #E0E0E0;
+}
+
+.kn-match-low {
+    background-color: #FAFAFA;
+    color: #9E9E9E;
+    border: 1px solid #EEEEEE;
+}
+
+
+/* --- Toggle Switch --- */
+.kn-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     cursor: pointer;
-    color: #999;
+    font-size: 14px;
+    font-weight: 500;
+    user-select: none;
+}
+
+.kn-toggle-input {
+    display: none;
+}
+
+.kn-toggle-slider {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    background-color: #CCC;
+    border-radius: 20px;
+    transition: 0.2s;
+}
+
+.kn-toggle-slider::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+.kn-toggle-input:checked+.kn-toggle-slider {
+    background-color: var(--color-accent);
+}
+
+.kn-toggle-input:checked+.kn-toggle-slider::before {
+    transform: translateX(16px);
 }
